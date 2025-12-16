@@ -1,0 +1,441 @@
+.home-page {
+    height: 100vh;
+    padding: 16px;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.home-page.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-spinner {
+    font-size: 48px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Header */
+.home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    font-weight: bold;
+}
+
+.user-info h2 {
+    font-size: 22px;
+    margin-bottom: 3px;
+}
+
+.user-info p {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* Stats */
+.stats-section {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+}
+
+.stat-icon {
+    font-size: 22px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary-light);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* 当前学习 */
+.current-book-section {
+    flex-shrink: 0;
+}
+
+.section-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+    flex-shrink: 0;
+}
+
+.current-book-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 18px;
+}
+
+.current-book-card .book-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.current-book-card h4 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.learning-badge {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.progress-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.progress-stat {
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    padding: 12px 10px;
+    text-align: center;
+}
+
+.progress-stat .stat-num {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.progress-stat .stat-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.progress-stat.completed .stat-num {
+    color: var(--success);
+}
+
+.progress-stat.learning .stat-num {
+    color: var(--primary);
+}
+
+.progress-stat.remaining .stat-num {
+    color: var(--text-secondary);
+}
+
+.progress-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.progress-bar-container .progress-bar {
+    flex: 1;
+    height: 7px;
+    background: var(--bg-input);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-container .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--success));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-percent {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    min-width: 38px;
+}
+
+.btn-large {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+}
+
+.empty-book {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 30px;
+    text-align: center;
+}
+
+.empty-book p {
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+}
+
+/* 上次完成卡片 - 新样式 */
+.last-completed-section {
+    margin-top: 16px;
+    flex-shrink: 0;
+}
+
+.section-divider {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.section-divider::before,
+.section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.section-divider span {
+    padding: 0 10px;
+}
+
+.last-completed-card {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 16px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 添加一个完成的背景图标装饰 */
+.last-completed-card::after {
+    content: '✓';
+    position: absolute;
+    right: -20px;
+    top: -20px;
+    font-size: 100px;
+    color: rgba(16, 185, 129, 0.05);
+    font-family: sans-serif;
+    pointer-events: none;
+}
+
+.last-completed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.last-completed-header h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.last-completed-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.book-icon-tiny {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.completed-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.last-completed-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.lc-stat {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+}
+
+.lc-stat-num {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.lc-stat-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 5px;
+}
+
+.lc-stat.completed .lc-stat-num {
+    color: var(--success);
+}
+
+.lc-stat.practice .lc-stat-num {
+    color: #a78bfa;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.task-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.task-info {
+    flex: 1;
+}
+
+.task-info h4 {
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.task-info p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.task-progress {
+    height: 6px;
+    background: var(--bg-input);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--success));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* Actions */
+.actions-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    flex-shrink: 0;
+    margin-top: 16px;
+}
+
+.action-btn {
+    background: var(--bg-card);
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+}
+
+.action-btn:hover {
+    background: var(--bg-input);
+    transform: translateY(-3px);
+}
+
+.action-icon {
+    font-size: 28px;
+}
+
+.action-btn span:last-child {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .stats-section {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .task-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .task-card button {
+        width: 100%;
+    }
+}

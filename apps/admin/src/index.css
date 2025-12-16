@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #f0f2f5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* ProTable 样式优化 */
+.ant-pro-table {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.ant-pro-table-search {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 8px 8px 0 0;
+}
+
+.ant-table-thead>tr>th {
+  background: #fafafa;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.ant-table-tbody>tr:hover>td {
+  background: #f5f7fa;
+}
+
+/* 按钮样式优化 */
+.ant-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 卡片样式 */
+.ant-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* 表单样式 */
+.ant-modal-content {
+  border-radius: 8px;
+}
+
+.ant-form-item-label>label {
+  font-weight: 500;
+}
+
+/* ProTable 搜索按钮样式优化 */
+.ant-pro-table-search .ant-form-item-control-input-content {
+  display: flex;
+  gap: 8px;
+}
+
+/* 查询按钮样式 */
+.ant-pro-table-search .ant-btn-primary {
+  margin-right: 8px;
+}
+
+/* 重置按钮样式 - 添加背景色和边框 */
+.ant-pro-table-search .ant-btn:not(.ant-btn-primary) {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.ant-pro-table-search .ant-btn:not(.ant-btn-primary):hover {
+  color: #667eea;
+  border-color: #667eea;
+  background: #f5f7ff;
+}
+
+/* 将搜索按钮放在过滤条件后面,而不是最右边 */
+.ant-pro-form-query-filter-actions {
+  justify-content: flex-start !important;
+  margin-left: 0 !important;
+}
+
+
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}

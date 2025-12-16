@@ -1,0 +1,16 @@
+{
+  "name": "citour-pro",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "cd apps/api && npx wrangler dev --port 8787",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "dev:desktop": "npm run dev --workspace=apps/desktop"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3"
+  }
+}
