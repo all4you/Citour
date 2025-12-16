@@ -36,3 +36,7 @@ yarn-error.log*
 /apps/*/node_modules
 wrangler.toml
 .wrangler
+
+# Cache
+.vite
+.d1
