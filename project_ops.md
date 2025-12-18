@@ -40,9 +40,19 @@ git push -u origin main
 确保已安装 Wrangler CLI 并登录：
 
 ```bash
+# 使用 npx 运行 (无需全局安装)
+npx wrangler login
+
+# 或者全局安装 (需要权限):
+# 先安装nvm
+nvm install stable
+nvm alias default stable
+# 然后在全局安装
 npm install -g wrangler
 wrangler login
 ```
+
+> **常见问题**: 如果执行 `npm install -g` 遇到 `EACCES` 权限错误，推荐安装 **[nvm](https://github.com/nvm-sh/nvm)** (Node Version Manager) 来管理 Node 版本，这可以完美解决权限问题，也是管理多版本 Node 的最佳实践。
 
 ### 2.2 创建 D1 数据库
 
@@ -75,14 +85,14 @@ cd apps/api
 npm run db:init:remote
 ```
 
-> 该命令对应 `wrangler d1 execute citour-db --file=./schema.sql`，会自动创建 `tenants`, `users`, `word_books`, `words` 等所有表，并插入初始管理员账号。
+> 该命令对应 `wrangler d1 execute citour-db --remote --file=./schema.sql`，会自动创建 `tenants`, `users`, `word_books`, `words` 等所有表，并插入初始管理员账号。
 
 ### 2.4 验证数据
 
 你可以通过 Wrangler 直接查询生产环境数据库来验证：
 
 ```bash
-npx wrangler d1 execute citour-db --command="SELECT * FROM users"
+wrangler d1 execute citour-db --remote --command="SELECT * FROM users"
 ```
 
 ---
@@ -154,6 +164,8 @@ VITE_API_URL=https://citour-api.your-name.workers.dev
 
 **关于自定义域名:**
 Cloudflare Pages 允许你绑定自定义域名。在 Pages 项目的 **Custom domains** 设置中添加你的域名 (如 `admin.citour.com`)，Cloudflare 会自动配置 DNS 和 SSL。
+
+
 
 ---
 

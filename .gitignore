@@ -40,3 +40,9 @@ wrangler.toml
 # Cache
 .vite
 .d1
+
+# Schemas
+*.sql
+
+# Dependencies
+package-lock.json
