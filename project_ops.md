@@ -125,12 +125,9 @@ Cloudflare Workers 也支持自定义域名。
 
 **更新客户端配置:**
 
-部署完成后，你需要将这个线上 API 地址更新到前端项目的配置中。
-修改 `apps/desktop/.env` (或 `.env.production`):
+部署完成后，请记录下您的 API 地址 (例如 `https://citour-api.your-name.workers.dev`)。
 
-```env
-VITE_API_URL=https://citour-api.your-name.workers.dev
-```
+您将在 **第 4 节：学生端桌面应用打包** 中使用此地址来配置客户端。
 
 ### 3.2 部署 Admin 管理后台 (Cloudflare Pages)
 
@@ -177,18 +174,17 @@ Cloudflare Pages 允许你绑定自定义域名。在 Pages 项目的 **Custom d
 
 由于打包后的桌面应用是独立运行的，不能像开发环境那样使用代理转发 `/api` 请求。因此，我们需要明确指定 API 的完整地址。
 
-1. **配置环境变量:**
-   在 `apps/desktop` 目录下新建 `.env` 文件 (如果不存在)，并写入生产环境 API 地址：
-   
-   ```env
-   # 必须以 VITE_ 开头，指向已部署的 Worker 地址
-   VITE_API_URL=https://citour-api.your-name.workers.dev
-   ```
-
-2. **代码调整 (已自动完成):**
-   确保 `apps/desktop/src/services/api.js` 使用了该环境变量：
+1. **代码调整 (已自动完成):**
+   确保 `apps/desktop/src/services/api.js` 使用了环境变量：
    ```javascript
    const baseURL = import.meta.env.VITE_API_URL || '/api';
+   ```
+
+2. **生成应用图标:**
+   ```bash
+   cd apps/desktop
+   # 确保有一张 1024x1024 的 app-icon.png
+   npm run tauri icon path/to/app-icon.png
    ```
 
 3. **生成应用图标:**
@@ -303,16 +299,23 @@ jobs:
 ```
 
 **关于 Secrets 配置:**
-上述 Workflow 需要访问 GitHub Token (自动提供) 和可能的 API 地址。虽然 `VITE_API_URL` 通常构建时注入，但如果你的构建脚本依赖它：
+上述 Workflow 需要访问 GitHub Token (自动提供) 和可能的 API 地址。
 1. 在 GitHub 仓库 -> **Settings** -> **Secrets and variables** -> **Actions**。
-2. 新建 Repository Secret (例如 `VITE_API_URL`)。
-3. 在 workflow 的 `Build the app` 步骤前，添加步骤将 Secret 写入 `.env` 文件：
+2. 新建 Repository Secret (例如 `VITE_API_URL`)，填入您的生产环境 API 地址。
+3. 在 workflow 的 `Build the app` 步骤中，添加 `args` 或 `env` 来注入该变量。
+
+注意：`tauri-apps/tauri-action` 会自动传递 `GITHUB_TOKEN`。对于自定义环境变量，建议在 `Build the app` 步骤的 `env` 中显式声明：
 
 ```yaml
-      - name: Create .env file
-        run: |
-          cd apps/desktop
-          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}  # <--- 在这里注入
+        with:
+          releaseId: ${{ needs.create-release.outputs.id }}
+          projectPath: "./apps/desktop"
+          args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
 ```
 
 配置好后，每次在该仓库打上 tag (如 `v1.0.0`) 并推送，GitHub Actions 就会自动构建 Mac 和 Windows 包并发布到 GitHub Releases 页面。
