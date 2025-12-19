@@ -139,7 +139,7 @@ Cloudflare Workers 也支持自定义域名。
 2. 点击 **Create Application** -> **Pages** -> **Connect to Git**。
 3. 选择刚才推送的 GitHub 仓库 `Citour`。
 4. **Build settings (构建配置)**:
-   - **Framework preset**: `Vite` (或者 `Create React App`)
+   - **Framework preset**: `无`
    - **Build command**: `npm run build`
    - **Build output directory**: `dist`
    - **Root directory** (重要): `apps/admin`
@@ -181,13 +181,6 @@ Cloudflare Pages 允许你绑定自定义域名。在 Pages 项目的 **Custom d
    ```
 
 2. **生成应用图标:**
-   ```bash
-   cd apps/desktop
-   # 确保有一张 1024x1024 的 app-icon.png
-   npm run tauri icon path/to/app-icon.png
-   ```
-
-3. **生成应用图标:**
    ```bash
    cd apps/desktop
    # 确保有一张 1024x1024 的 app-icon.png
