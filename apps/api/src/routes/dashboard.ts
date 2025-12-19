@@ -33,14 +33,14 @@ app.get('/stats', async (c) => {
     SELECT COUNT(*) as total FROM users WHERE tenant_id = ? AND role = 'student'
   `).bind(tenantId).first();
 
-  // Practice session count
+  // Practice session count (using learning_tasks)
   const practiceCount = await c.env.DB.prepare(`
-    SELECT COUNT(*) as total FROM practice_sessions WHERE tenant_id = ?
+    SELECT COUNT(*) as total FROM learning_tasks WHERE tenant_id = ? AND status = 'completed'
   `).bind(tenantId).first();
 
   // Total correct attempts
   const correctAttempts = await c.env.DB.prepare(`
-    SELECT SUM(correct_count) as total FROM practice_sessions WHERE tenant_id = ?
+    SELECT SUM(correct_count) as total FROM learning_tasks WHERE tenant_id = ? AND status = 'completed'
   `).bind(tenantId).first();
 
   return c.json({

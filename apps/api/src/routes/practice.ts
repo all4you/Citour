@@ -137,4 +137,126 @@ app.put('/wrong-words/:id/review', async (c) => {
     return c.json({ success: true });
 });
 
+// Get practice history (打卡记录)
+app.get('/history', async (c) => {
+    const tenantId = c.get('tenantId');
+    const { user_id, book_id, page = '1', pageSize = '20' } = c.req.query();
+
+    const offset = (parseInt(page) - 1) * parseInt(pageSize);
+    const limit = parseInt(pageSize);
+
+    // 构建查询条件
+    const params: any[] = [tenantId];
+    let whereClause = 'WHERE lt.tenant_id = ? AND lt.status = "completed"';
+
+    if (user_id) {
+        whereClause += ' AND lt.user_id = ?';
+        params.push(parseInt(user_id));
+    }
+
+    if (book_id) {
+        whereClause += ' AND lt.book_id = ?';
+        params.push(parseInt(book_id));
+    }
+
+    // 1. 获取总数
+    const countQuery = `SELECT COUNT(*) as total FROM learning_tasks lt ${whereClause}`;
+    const totalResult = await c.env.DB.prepare(countQuery).bind(...params).first();
+    const total = totalResult?.total || 0;
+
+    // 2. 获取列表
+    const listQuery = `
+        SELECT 
+            lt.id,
+            lt.user_id,
+            lt.book_id,
+            wb.name as book_name,
+            'review' as session_type, -- 默认为 review，因为表里没有 session_type
+            lt.started_at,
+            lt.ended_at,
+            lt.duration_seconds,
+            lt.total_count as total_words,
+            lt.correct_count,
+            lt.wrong_count,
+            lt.hint_count
+        FROM learning_tasks lt
+        LEFT JOIN word_books wb ON lt.book_id = wb.id
+        ${whereClause}
+        ORDER BY lt.created_at DESC
+        LIMIT ? OFFSET ?
+    `;
+
+    // 添加分页参数
+    const listParams = [...params, limit, offset];
+    const results = await c.env.DB.prepare(listQuery).bind(...listParams).all();
+
+    return c.json({
+        success: true,
+        data: results.results,
+        total
+    });
+});
+
+// Start a practice session
+app.post('/session/start', async (c) => {
+    const tenantId = c.get('tenantId');
+    const { user_id, book_id, word_ids = [], total_words } = await c.req.json();
+
+    if (!user_id || !book_id) {
+        return c.json({ error: 'Missing required fields' }, 400);
+    }
+
+    const now = getNowUTC8(); // Use local time
+
+    const result = await c.env.DB.prepare(`
+        INSERT INTO learning_tasks (
+            tenant_id, user_id, book_id, word_ids, total_count, 
+            status, started_at, created_at
+        ) VALUES (?, ?, ?, ?, ?, 'in_progress', ?, ?)
+        RETURNING id
+    `).bind(
+        tenantId, user_id, book_id, JSON.stringify(word_ids), total_words || word_ids.length,
+        now, now
+    ).first();
+
+    return c.json({
+        success: true,
+        data: {
+            session_id: result?.id
+        }
+    });
+});
+
+// End a practice session
+app.post('/session/:id/end', async (c) => {
+    const tenantId = c.get('tenantId');
+    const sessionId = c.req.param('id');
+    const { duration_seconds, correct_count, wrong_count, hint_count } = await c.req.json();
+
+    const now = getNowUTC8();
+
+    await c.env.DB.prepare(`
+        UPDATE learning_tasks 
+        SET status = 'completed',
+            ended_at = ?,
+            duration_seconds = ?,
+            correct_count = ?,
+            wrong_count = ?,
+            hint_count = ?
+        WHERE id = ? AND tenant_id = ?
+    `).bind(
+        now,
+        duration_seconds || 0,
+        correct_count || 0,
+        wrong_count || 0,
+        hint_count || 0,
+        sessionId,
+        tenantId
+    ).run();
+
+    return c.json({
+        success: true
+    });
+});
+
 export default app;
