@@ -357,3 +357,39 @@ git push && git push origin v1.0.1
 
 **4. 查看构建进度:**
 去 GitHub 仓库的 **Actions** 页面查看运行状态。构建完成后，在 **Releases** 页面会看到一个新的 Draft Release，包含构建好的 `.dmg` (Mac) 和 `.msi` (Windows) 安装包。点击 "Edit" 发布即可。
+
+### 4.6 重新触发发布流程 (故障排除)
+
+如果自动构建失败 (例如代码报错或配置问题)，修复代码后，单纯推送代码不会触发产生新的安装包。你需要让标签 (Tag) 指向最新的提交。
+
+请按照以下步骤操作：
+
+**1. 提交修复代码:**
+
+```bash
+git add .
+git commit -m "fix: 描述你的修复内容"
+git push
+```
+
+**2. 重置标签以触发构建:**
+
+假设当前失败的版本是 `v0.0.1`，我们需要删除旧标签并重新打在最新提交上：
+
+```bash
+# 删除本地标签
+git tag -d v0.0.1
+
+# 删除远程标签 (注意冒号前后的空格)
+git push origin :v0.0.1
+
+# 重新打标签
+git tag v0.0.1
+
+# 推送新标签 -> 再次触发 GitHub Actions
+git push origin v0.0.1
+```
+
+**命令原理解析:**
+- `git push origin :v0.0.1`: 这里的冒号 `:` 语法表示推送一个“空”值到远程的 `v0.0.1`，即删除该引用。
+- `git push origin v0.0.1`: 只有当新的标签被推送到 GitHub 时，`release.yml` 中的 `on: push: tags` 触发器才会被激活，从而开始新一轮的构建。
