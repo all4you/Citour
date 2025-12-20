@@ -184,10 +184,36 @@ Cloudflare Pages 允许你绑定自定义域名。在 Pages 项目的 **Custom d
    ```bash
    cd apps/desktop
    # 确保有一张 1024x1024 的 app-icon.png
+   # path/to/app-icon.png 为图标文件路径，支持相对路径和绝对路径，相对路径是相对于apps/desktop目录
    npm run tauri icon path/to/app-icon.png
    ```
 
-### 4.2 打包 macOS 版本 (需要在 Mac 上执行)
+### 4.2 多环境打包配置
+
+项目支持多种打包方式，适应不同场景：
+
+| 打包命令 | 用途 | API 地址来源 |
+|---------|------|-------------|
+| `npm run tauri:build:local` | 本地调试包 | 命令行 `cross-env` 注入 `localhost:8787/api` |
+| `npm run tauri:build:prod` | 生产包 | 环境变量 `VITE_API_URL` |
+| `npm run tauri:build` | 默认 | 优先环境变量，否则回退 `/api` |
+
+**本地打包连接本地 API (调试用):**
+```bash
+cd apps/desktop
+npm run tauri:build:local
+```
+
+**本地打包连接生产 API:**
+```bash
+cd apps/desktop
+VITE_API_URL=https://citour-api.your-name.workers.dev npm run tauri:build
+```
+
+> **注意**: 不要创建 `.env.local` 文件！该文件会在开发模式下被 Vite 读取，导致 `/api` 请求绕过代理直接发送到配置的地址，造成 404 错误。打包时的环境变量已通过 `cross-env` 在命令行中注入，无需额外配置文件。
+
+
+### 4.3 打包 macOS 版本 (需要在 Mac 上执行)
 
 **环境要求:**
 - Xcode Command Line Tools (`xcode-select --install`)
@@ -204,7 +230,7 @@ npm run tauri:build
 `apps/desktop/src-tauri/target/release/bundle/dmg/*.dmg` (主要分发格式)
 `apps/desktop/src-tauri/target/release/bundle/macos/*` (应用程序)
 
-### 4.3 打包 Windows 版本 (需要在 Windows 上执行)
+### 4.4 打包 Windows 版本 (需要在 Windows 上执行)
 
 **环境要求:**
 - Microsoft Visual Studio C++ Build Tools
@@ -223,7 +249,7 @@ npm run tauri:build
 `apps/desktop/src-tauri/target/release/bundle/msi/*.msi` (安装程序)
 `apps/desktop/src-tauri/target/release/bundle/nsis/*.exe` (如果配置了 NSIS)
 
-### 4.4 使用 GitHub Actions 自动构建 (推荐)
+### 4.5 使用 GitHub Actions 自动构建 (推荐)
 
 为了避免需要两台电脑，我们可以使用 GitHub Actions 自动构建多平台版本。
 
