@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ProLayout } from '@ant-design/pro-components';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { TeamOutlined, LogoutOutlined } from '@ant-design/icons';
-import { Popover } from 'antd';
+import { Dropdown, Avatar, Space } from 'antd';
 
 export default function SysLayout() {
     const navigate = useNavigate();
@@ -19,22 +19,14 @@ export default function SysLayout() {
         navigate('/sys/login');
     };
 
-    const logoutContent = (
-        <div
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0' }}
-            onClick={handleLogout}
-        >
-            <LogoutOutlined /> 退出登录
-        </div>
-    );
-
     return (
         <ProLayout
-            title="Citour 系统后台"
+            title="Citour 系统控制台"
             logo={null}
-            layout="side"
+            layout="mix"
             navTheme="light"
             fixSiderbar
+            splitMenus={false}
             location={{
                 pathname: location.pathname,
             }}
@@ -55,56 +47,30 @@ export default function SysLayout() {
                     },
                 ],
             }}
-            menuFooterRender={(props) => {
-                if (props?.collapsed) {
-                    return (
-                        <div style={{ textAlign: 'center', padding: '16px 0', cursor: 'pointer' }}>
-                            <Popover content={logoutContent} trigger="hover" placement="rightBottom">
-                                <div style={{
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '50%',
-                                    background: '#f56a00',
-                                    color: '#fff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '14px',
-                                    margin: '0 auto'
-                                }}>
-                                    {avatarChar}
-                                </div>
-                            </Popover>
-                        </div>
-                    );
-                }
-                return (
-                    <div style={{ padding: '16px', borderTop: '1px solid #f0f0f0' }}>
-                        <Popover content={logoutContent} trigger="hover" placement="rightBottom">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                <div style={{
-                                    width: '32px',
-                                    height: '32px',
-                                    borderRadius: '50%',
-                                    background: '#f56a00',
-                                    color: '#fff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '14px'
-                                }}>
-                                    {avatarChar}
-                                </div>
-                                <span style={{ fontSize: '14px', color: '#333', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                    {userName}
-                                </span>
-                            </div>
-                        </Popover>
-                    </div>
-                );
-            }}
+            avatarProps={false}
+            actionsRender={false}
+            rightContentRender={() => (
+                <Dropdown
+                    menu={{
+                        items: [
+                            {
+                                key: 'logout',
+                                icon: <LogoutOutlined />,
+                                label: '退出登录',
+                                onClick: handleLogout,
+                            },
+                        ],
+                    }}
+                >
+                    <Space style={{ cursor: 'pointer', padding: '0 16px' }}>
+                        <Avatar style={{ backgroundColor: '#f56a00' }}>{avatarChar}</Avatar>
+                        <span>{userName}</span>
+                    </Space>
+                </Dropdown>
+            )}
         >
             <Outlet />
         </ProLayout>
     );
 }
+

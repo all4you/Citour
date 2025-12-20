@@ -2,12 +2,14 @@ import React, { useEffect } from 'react';
 import { ProLayout } from '@ant-design/pro-components';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LogoutOutlined, DashboardOutlined, BookOutlined, UserOutlined, FileTextOutlined } from '@ant-design/icons';
-import { Dropdown } from 'antd';
+import { Dropdown, Avatar, Space } from 'antd';
 
 export default function Layout() {
     const location = useLocation();
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem('citour_user') || '{}');
+    const userName = user.name || '管理员';
+    const avatarChar = userName.charAt(0).toUpperCase();
 
     useEffect(() => {
         if (!user.id) {
@@ -17,10 +19,19 @@ export default function Layout() {
 
     if (!user.id) return null;
 
+    const handleLogout = () => {
+        localStorage.removeItem('citour_user');
+        navigate('/tenant/login');
+    };
+
     return (
         <ProLayout
-            title="Citour Admin"
+            title="Citour 管理后台"
             logo={null}
+            layout="mix"
+            navTheme="light"
+            fixSiderbar
+            splitMenus={false}
             location={location}
             menuItemRender={(item, dom) => (
                 <a onClick={() => navigate(item.path)}>{dom}</a>
@@ -33,33 +44,30 @@ export default function Layout() {
                     { path: '/tenant/practice-records', name: '打卡记录', icon: <FileTextOutlined /> },
                 ],
             }}
-            avatarProps={{
-                src: user.avatar || 'https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg',
-                title: user.name,
-                render: (props, dom) => {
-                    return (
-                        <Dropdown
-                            menu={{
-                                items: [
-                                    {
-                                        key: 'logout',
-                                        icon: <LogoutOutlined />,
-                                        label: '退出登录',
-                                        onClick: () => {
-                                            localStorage.removeItem('citour_user');
-                                            navigate('/tenant/login');
-                                        },
-                                    },
-                                ],
-                            }}
-                        >
-                            {dom}
-                        </Dropdown>
-                    );
-                },
-            }}
+            avatarProps={false}
+            actionsRender={false}
+            rightContentRender={() => (
+                <Dropdown
+                    menu={{
+                        items: [
+                            {
+                                key: 'logout',
+                                icon: <LogoutOutlined />,
+                                label: '退出登录',
+                                onClick: handleLogout,
+                            },
+                        ],
+                    }}
+                >
+                    <Space style={{ cursor: 'pointer', padding: '0 16px' }}>
+                        <Avatar style={{ backgroundColor: '#f56a00' }}>{avatarChar}</Avatar>
+                        <span>{userName}</span>
+                    </Space>
+                </Dropdown>
+            )}
         >
             <Outlet />
         </ProLayout>
     );
 }
+

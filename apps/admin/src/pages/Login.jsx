@@ -27,7 +27,7 @@ export default function Login() {
     return (
         <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f0f2f5' }}>
             <LoginForm
-                title="Citour Admin"
+                title="Citour 管理后台"
                 subTitle="租户管理后台"
                 onFinish={handleFinish}
             >
