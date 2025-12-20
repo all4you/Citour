@@ -246,7 +246,6 @@
 .spelling-error {
     color: var(--error);
     font-weight: 600;
-    text-decoration: line-through;
 }
 
 /* 播放按钮 */

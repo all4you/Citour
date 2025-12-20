@@ -1,0 +1,67 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create_release.outputs.id }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Automatic release for ${{ github.ref }}
+            
+            See the assets below for macOS (.dmg) and Windows (.msi) installers.
+          draft: true
+          prerelease: false
+
+  build-tauri:
+    needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, windows-latest]
+    
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+      
+      - name: install frontend dependencies
+        run: |
+          cd apps/desktop
+          npm install
+
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 注入生产环境 API 地址
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        with:
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          projectPath: "./apps/desktop"
+          args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}

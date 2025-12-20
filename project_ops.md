@@ -115,7 +115,7 @@ wrangler d1 execute citour-db --remote --command="SELECT * FROM users"
    npm run deploy
    ```
 
-3. 部署成功后，控制台会输出 API 的访问地址，例如 `https://citour-api.your-name.workers.dev`。
+3. 部署成功后，控制台会输出 API 的访问地址，例如 `https://your-api.workers.dev`。
 
 **关于自定义域名:**
 Cloudflare Workers 也支持自定义域名。
@@ -125,7 +125,7 @@ Cloudflare Workers 也支持自定义域名。
 
 **更新客户端配置:**
 
-部署完成后，请记录下您的 API 地址 (例如 `https://citour-api.your-name.workers.dev`)。
+部署完成后，请记录下您的 API 地址 (例如 `https://your-api.workers.dev`)。
 
 您将在 **第 4 节：学生端桌面应用打包** 中使用此地址来配置客户端。
 
@@ -144,7 +144,7 @@ Cloudflare Workers 也支持自定义域名。
    - **Build output directory**: `dist`
    - **Root directory** (重要): `apps/admin`
 5. **Environment variables (环境变量)**:
-   - 添加 `VITE_API_URL`，值为你的 API Worker 地址 (例如 `https://citour-api.your-name.workers.dev`).
+   - 添加 `VITE_API_URL`，值为你的 API Worker 地址 (例如 `https://your-api.workers.dev`).
 6. 点击 **Save and Deploy**。
 
 **方式 B: 本地构建后上传**
@@ -172,12 +172,12 @@ Cloudflare Pages 允许你绑定自定义域名。在 Pages 项目的 **Custom d
 
 ### 4.1 环境准备与配置
 
-由于打包后的桌面应用是独立运行的，不能像开发环境那样使用代理转发 `/api` 请求。因此，我们需要明确指定 API 的完整地址。
+由于打包后的桌面应用是独立运行的，不能像开发环境那样使用代理转发请求。因此，我们需要明确指定 API 的完整地址。
 
 1. **代码调整 (已自动完成):**
    确保 `apps/desktop/src/services/api.js` 使用了环境变量：
    ```javascript
-   const baseURL = import.meta.env.VITE_API_URL || '/api';
+   const baseURL = import.meta.env.VITE_API_URL || '';
    ```
 
 2. **生成应用图标:**
@@ -194,23 +194,24 @@ Cloudflare Pages 允许你绑定自定义域名。在 Pages 项目的 **Custom d
 
 | 打包命令 | 用途 | API 地址来源 |
 |---------|------|-------------|
-| `npm run tauri:build:local` | 本地调试包 | 命令行 `cross-env` 注入 `localhost:8787/api` |
+| `npm run tauri:build:local` | 本地调试包 | 命令行 `cross-env` 注入 `localhost:8787` |
 | `npm run tauri:build:prod` | 生产包 | 环境变量 `VITE_API_URL` |
-| `npm run tauri:build` | 默认 | 优先环境变量，否则回退 `/api` |
+| `npm run tauri:build` | 默认 | 优先环境变量，否则回退到空字符串 |
 
 **本地打包连接本地 API (调试用):**
 ```bash
 cd apps/desktop
+npm install
 npm run tauri:build:local
 ```
 
 **本地打包连接生产 API:**
 ```bash
 cd apps/desktop
-VITE_API_URL=https://citour-api.your-name.workers.dev npm run tauri:build
+npm install
+# 注意：通过参数指定生产环境的API域名，然后打包，例如：
+VITE_API_URL=https://your-api.workers.dev npm run tauri:build
 ```
-
-> **注意**: 不要创建 `.env.local` 文件！该文件会在开发模式下被 Vite 读取，导致 `/api` 请求绕过代理直接发送到配置的地址，造成 404 错误。打包时的环境变量已通过 `cross-env` 在命令行中注入，无需额外配置文件。
 
 
 ### 4.3 打包 macOS 版本 (需要在 Mac 上执行)
@@ -222,7 +223,8 @@ VITE_API_URL=https://citour-api.your-name.workers.dev npm run tauri:build
 
 ```bash
 cd apps/desktop
-npm run tauri:build
+npm install
+VITE_API_URL=https://your-api.workers.dev npm run tauri:build
 ```
 
 **输出产物:**
@@ -241,7 +243,7 @@ npm run tauri:build
 ```bash
 cd apps/desktop
 npm install
-npm run tauri:build
+VITE_API_URL=https://your-api.workers.dev npm run tauri:build
 ```
 
 **输出产物:**
@@ -251,8 +253,13 @@ npm run tauri:build
 
 ### 4.5 使用 GitHub Actions 自动构建 (推荐)
 
-为了避免需要两台电脑，我们可以使用 GitHub Actions 自动构建多平台版本。
+为了避免需要两台电脑，我们可以使用 GitHub Actions 自动构建多平台版本。此配置会在你推送 `v*` 格式的标签时自动触发。
 
+**1. 配置 GitHub Secrets:**
+在 GitHub 仓库 -> **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**:
+- `VITE_API_URL`: 填入生产环境 API 域名 (例如 `https://your-api.workers.dev`) -- **注意不带 /api**
+
+**2. 创建 Workflow 文件:**
 在项目根目录创建 `.github/workflows/release.yml`:
 
 ```yaml
@@ -266,6 +273,7 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     outputs:
+      release_id: ${{ steps.create_release.outputs.id }}
       upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
       - name: Create Release
@@ -276,6 +284,10 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
+          body: |
+            Automatic release for ${{ github.ref }}
+            
+            See the assets below for macOS (.dmg) and Windows (.msi) installers.
           draft: true
           prerelease: false
 
@@ -293,6 +305,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+      
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
       
@@ -311,30 +324,31 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 注入生产环境 API 地址
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
         with:
-          releaseId: ${{ needs.create-release.outputs.id }}
+          releaseId: ${{ needs.create-release.outputs.release_id }}
           projectPath: "./apps/desktop"
           args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
 ```
 
-**关于 Secrets 配置:**
-上述 Workflow 需要访问 GitHub Token (自动提供) 和可能的 API 地址。
-1. 在 GitHub 仓库 -> **Settings** -> **Secrets and variables** -> **Actions**。
-2. 新建 Repository Secret (例如 `VITE_API_URL`)，填入您的生产环境 API 地址。
-3. 在 workflow 的 `Build the app` 步骤中，添加 `args` 或 `env` 来注入该变量。
+**3. 触发构建 (使用脚本):**
 
-注意：`tauri-apps/tauri-action` 会自动传递 `GITHUB_TOKEN`。对于自定义环境变量，建议在 `Build the app` 步骤的 `env` 中显式声明：
+项目根目录已提供 `release.sh` 脚本，可一步完成版本更新、提交和打标签。
 
-```yaml
-      - name: Build the app
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}  # <--- 在这里注入
-        with:
-          releaseId: ${{ needs.create-release.outputs.id }}
-          projectPath: "./apps/desktop"
-          args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
+```bash
+# 确保脚本有执行权限
+chmod +x release.sh
+
+# 运行发布脚本 (参数：版本号 [发布说明])
+./release.sh 1.0.1 "fix: 修复了 API 配置和样式问题"
 ```
 
-配置好后，每次在该仓库打上 tag (如 `v1.0.0`) 并推送，GitHub Actions 就会自动构建 Mac 和 Windows 包并发布到 GitHub Releases 页面。
+脚本执行完成后，按提示运行推送命令即可：
+
+```bash
+git push && git push origin v1.0.1
+```
+
+**4. 查看构建进度:**
+去 GitHub 仓库的 **Actions** 页面查看运行状态。构建完成后，在 **Releases** 页面会看到一个新的 Draft Release，包含构建好的 `.dmg` (Mac) 和 `.msi` (Windows) 安装包。点击 "Edit" 发布即可。
