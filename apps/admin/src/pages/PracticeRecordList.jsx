@@ -167,6 +167,9 @@ export default function PracticeRecordList() {
                     span: 6,
                     collapsed: false,
                     collapseRender: false,
+                    optionRender: (searchConfig, formProps, dom) => [
+                        ...dom.reverse(),
+                    ],
                 }}
                 pagination={{
                     defaultPageSize: 20,

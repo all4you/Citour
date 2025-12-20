@@ -33,6 +33,14 @@ export default function WordbookList() {
             ellipsis: true,
         },
         {
+            title: '创建时间',
+            dataIndex: 'created_at',
+            key: 'created_at',
+            width: 160,
+            valueType: 'dateTime',
+            search: false,
+        },
+        {
             title: '单词数',
             dataIndex: 'word_count',
             key: 'word_count',
@@ -59,14 +67,6 @@ export default function WordbookList() {
                 online: { text: '在线', status: 'Success' },
                 offline: { text: '离线', status: 'Default' },
             },
-        },
-        {
-            title: '创建时间',
-            dataIndex: 'created_at',
-            key: 'created_at',
-            width: 160,
-            valueType: 'dateTime',
-            search: false,
         },
         {
             title: '操作',

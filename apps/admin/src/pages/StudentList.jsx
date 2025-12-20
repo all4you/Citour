@@ -27,6 +27,14 @@ export default function StudentList() {
             ellipsis: true,
         },
         {
+            title: '创建时间',
+            dataIndex: 'created_at',
+            key: 'created_at',
+            width: 160,
+            valueType: 'dateTime',
+            search: false,
+        },
+        {
             title: '账号',
             dataIndex: 'account',
             key: 'account',
@@ -40,14 +48,6 @@ export default function StudentList() {
             width: 120,
             search: false,
             render: (text) => text || '-',
-        },
-        {
-            title: '创建时间',
-            dataIndex: 'created_at',
-            key: 'created_at',
-            width: 160,
-            valueType: 'dateTime',
-            search: false,
         },
         {
             title: '操作',
@@ -137,6 +137,9 @@ export default function StudentList() {
                     span: 6,
                     collapsed: false,
                     collapseRender: false,
+                    optionRender: (searchConfig, formProps, dom) => [
+                        ...dom.reverse(),
+                    ],
                 }}
                 pagination={{
                     defaultPageSize: 20,

@@ -24,7 +24,16 @@ export default function TenantManagement() {
             title: '租户名称',
             dataIndex: 'name',
             key: 'name',
+            width: 280,
             ellipsis: true,
+        },
+        {
+            title: '创建时间',
+            dataIndex: 'created_at',
+            key: 'created_at',
+            width: 180,
+            valueType: 'dateTime',
+            search: false,
         },
         {
             title: '状态',
@@ -37,14 +46,6 @@ export default function TenantManagement() {
                     {status === 'active' ? '启用' : '禁用'}
                 </Tag>
             ),
-        },
-        {
-            title: '创建时间',
-            dataIndex: 'created_at',
-            key: 'created_at',
-            width: 180,
-            valueType: 'dateTime',
-            search: false,
         },
     ];
 
@@ -125,6 +126,9 @@ export default function TenantManagement() {
                     span: 6,
                     collapsed: false,
                     collapseRender: false,
+                    optionRender: (searchConfig, formProps, dom) => [
+                        ...dom.reverse(),
+                    ],
                 }}
                 pagination={{
                     current: currentPage,
