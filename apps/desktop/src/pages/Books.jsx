@@ -318,12 +318,9 @@ export default function Books() {
                     const isAllCompleted = completed >= total && total > 0;
 
                     return (
-                        <motion.div
+                        <div
                             key={book.id}
                             className={`${styles.bookCardCompact} ${styles[book.status]}`}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.03 }}
                         >
                             <div className={styles.bookHeaderRow}>
                                 <div className={styles.bookIconSmall}>📖</div>
@@ -398,7 +395,7 @@ export default function Books() {
                                     学习详情
                                 </button>
                             </div>
-                        </motion.div>
+                        </div>
                     );
                 })}
             </div>

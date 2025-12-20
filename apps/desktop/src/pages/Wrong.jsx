@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { getWrongWords } from '../services/api';
 import styles from '../styles/wrong.module.css';
 
@@ -145,12 +145,9 @@ export default function Wrong() {
             ) : (
                 <div className={styles.wrongList}>
                     {words.map((item, index) => (
-                        <motion.div
+                        <div
                             key={`${item.word_id}-${index}`}
                             className={styles.wrongCard}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.05 }}
                         >
                             <div className={styles.wordHeader}>
                                 <div className={styles.wordSpelling}>{item.spelling}</div>
@@ -184,7 +181,7 @@ export default function Wrong() {
                                     错误拼写: <span className={styles.spellingError}>{item.wrong_spelling}</span>
                                 </div>
                             )}
-                        </motion.div>
+                        </div>
                     ))}
                 </div>
             )}

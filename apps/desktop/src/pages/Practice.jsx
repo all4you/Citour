@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { getTaskDetails, submitPracticeResult, updateTaskProgress } from '../services/api';
 import styles from '../styles/practice.module.css';
 
@@ -313,11 +313,7 @@ export default function Practice() {
 
         return (
             <div className={styles.practicePage}>
-                <motion.div
-                    className={styles.completionCard}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                >
+                <div className={styles.completionCard}>
                     <div className={styles.celebration}>🎉</div>
                     <h2>太棒了！</h2>
                     <p>你完成了今天的学习任务</p>
@@ -351,7 +347,7 @@ export default function Practice() {
                     >
                         返回首页
                     </button>
-                </motion.div>
+                </div>
             </div>
         );
     }
@@ -372,208 +368,184 @@ export default function Practice() {
                 </div>
 
                 {/* Word Card */}
-                <motion.div
+                <div
                     className={styles.wordCard}
                     key={currentIndex}
-                    initial={{ x: 50, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
                 >
-                    <AnimatePresence mode="wait">
-                        {showHint ? (
-                            /* 提示卡片 - 显示单词详情 */
-                            <motion.div
-                                className={styles.cardHint}
-                                key="hint"
-                                initial={{ rotateY: 90, opacity: 0 }}
-                                animate={{ rotateY: 0, opacity: 1 }}
-                                exit={{ rotateY: -90, opacity: 0 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            >
-                                <div className={styles.hintHeader}>正确答案</div>
+                    {showHint ? (
+                        /* 提示卡片 - 显示单词详情 */
+                        <div className={styles.cardHint}>
+                            <div className={styles.hintHeader}>正确答案</div>
 
-                                <div className={styles.hintSpelling}>
-                                    <span className={styles.spellingText}>{currentWord?.spelling}</span>
-                                    <button
-                                        className={styles.audioBtnSmall}
-                                        onClick={() => playAudio(currentWord?.spelling)}
-                                    >
-                                        🔊
-                                    </button>
-                                </div>
-
-                                <div className={styles.hintMeaning}>{currentWord?.meaning}</div>
-
-                                {currentWord?.phonics_data && (
-                                    <div className={`${styles.hintInfo} ${styles.phonics}`}>
-                                        <span className={styles.infoIcon}>📖</span>
-                                        <span>自然拼读: {currentWord.phonics_data}</span>
-                                    </div>
-                                )}
-
-                                {currentWord?.sentence && (
-                                    <div className={`${styles.hintInfo} ${styles.sentence}`}>
-                                        <span className={styles.infoIcon}>📝</span>
-                                        <span>{currentWord.sentence}</span>
-                                    </div>
-                                )}
-
-                                {currentWord?.root_info && (
-                                    <div className={`${styles.hintInfo} ${styles.etymology}`}>
-                                        <span className={styles.infoIcon}>🌱</span>
-                                        <span>词根: {currentWord.root_info}</span>
-                                    </div>
-                                )}
-
+                            <div className={styles.hintSpelling}>
+                                <span className={styles.spellingText}>{currentWord?.spelling}</span>
                                 <button
-                                    className={`btn ${styles.btnContinue} ${styles.btnLarge}`}
-                                    onClick={handleContinue}
-                                >
-                                    ↻ 继续打卡
-                                </button>
-                            </motion.div>
-                        ) : !showResult ? (
-                            <motion.div
-                                className={styles.cardFront}
-                                key="front"
-                                initial={{ rotateY: -90, opacity: 0 }}
-                                animate={{ rotateY: 0, opacity: 1 }}
-                                exit={{ rotateY: 90, opacity: 0 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            >
-                                {/* 徽章组 */}
-                                <div className={styles.statsBadges}>
-                                    <div className={`${styles.badge} ${styles.badgeTime}`}>
-                                        <div className={styles.badgeLabel}>耗时</div>
-                                        <div className={styles.badgeValue}>{Math.floor(currentTime / 60)}:{(currentTime % 60).toString().padStart(2, '0')}</div>
-                                    </div>
-                                    <div className={`${styles.badge} ${styles.badgeCorrect}`}>
-                                        <div className={styles.badgeLabel}>正确</div>
-                                        <div className={styles.badgeValue}>{stats.correct}</div>
-                                    </div>
-                                    <div className={`${styles.badge} ${styles.badgeWrong}`}>
-                                        <div className={styles.badgeLabel}>错误</div>
-                                        <div className={styles.badgeValue}>{stats.wrong}</div>
-                                    </div>
-                                    <div className={`${styles.badge} ${styles.badgeCount}`}>
-                                        <div className={styles.badgeLabel}>进度</div>
-                                        <div className={styles.badgeValue}>{currentIndex + 1}/{words.length}</div>
-                                    </div>
-                                </div>
-
-                                {/* 进度条行 */}
-                                <div className={styles.progressBarRow}>
-                                    <div className={styles.practiceProgressBarContainer}>
-                                        <div
-                                            className={styles.progressBarFill}
-                                            style={{ width: `${Math.round(((currentIndex + 1) / words.length) * 100)}%` }}
-                                        />
-                                    </div>
-                                    <div className={styles.progressPercent}>{Math.round(((currentIndex + 1) / words.length) * 100)}%</div>
-                                </div>
-
-                                {/* 分隔线 */}
-                                <div className={styles.statsDivider}></div>
-
-                                <div className={styles.meaning}>{currentWord?.meaning}</div>
-
-                                <button
-                                    className={styles.audioBtn}
+                                    className={styles.audioBtnSmall}
                                     onClick={() => playAudio(currentWord?.spelling)}
                                 >
-                                    <span>🔊</span>
-                                    <span>听发音</span>
+                                    🔊
                                 </button>
+                            </div>
 
-                                <form onSubmit={handleSubmit} className={styles.inputSection}>
-                                    <div className={styles.letterBoxes}>
-                                        {/* 首字母固定显示 */}
-                                        <div className={`${styles.letterBox} ${styles.firstLetter}`}>
-                                            {currentWord?.spelling[0]}
-                                        </div>
-                                        {/* 剩余字母输入框 */}
-                                        {letterInputs.map((letter, index) => (
-                                            <input
-                                                key={index}
-                                                ref={el => inputRefs.current[index] = el}
-                                                type="text"
-                                                className={`${styles.letterBox} ${styles.letterInput}`}
-                                                value={letter}
-                                                onChange={(e) => handleLetterChange(index, e.target.value)}
-                                                onKeyDown={(e) => handleKeyDown(index, e)}
-                                                maxLength={1}
-                                            />
-                                        ))}
-                                    </div>
+                            <div className={styles.hintMeaning}>{currentWord?.meaning}</div>
 
-                                    <div className={styles.actionButtons}>
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary"
-                                            onClick={handleHint}
-                                        >
-                                            💡 提示
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            className="btn btn-primary"
-                                        >
-                                            检查 ✓
-                                        </button>
-                                    </div>
-                                </form>
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                className={styles.cardBack}
-                                key="back"
-                                initial={{ rotateY: 90, opacity: 0 }}
-                                animate={{ rotateY: 0, opacity: 1 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            {currentWord?.phonics_data && (
+                                <div className={`${styles.hintInfo} ${styles.phonics}`}>
+                                    <span className={styles.infoIcon}>📖</span>
+                                    <span>自然拼读: {currentWord.phonics_data}</span>
+                                </div>
+                            )}
+
+                            {currentWord?.sentence && (
+                                <div className={`${styles.hintInfo} ${styles.sentence}`}>
+                                    <span className={styles.infoIcon}>📝</span>
+                                    <span>{currentWord.sentence}</span>
+                                </div>
+                            )}
+
+                            {currentWord?.root_info && (
+                                <div className={`${styles.hintInfo} ${styles.etymology}`}>
+                                    <span className={styles.infoIcon}>🌱</span>
+                                    <span>词根: {currentWord.root_info}</span>
+                                </div>
+                            )}
+
+                            <button
+                                className={`btn ${styles.btnContinue} ${styles.btnLarge}`}
+                                onClick={handleContinue}
                             >
-                                <div className={`${styles.resultIcon} ${isCorrect ? 'correct' : 'wrong'}`}>
-                                    {isCorrect ? '✓' : '✗'}
+                                ↻ 继续打卡
+                            </button>
+                        </div>
+                    ) : !showResult ? (
+                        <div className={styles.cardFront}>
+                            {/* 徽章组 */}
+                            <div className={styles.statsBadges}>
+                                <div className={`${styles.badge} ${styles.badgeTime}`}>
+                                    <div className={styles.badgeLabel}>耗时</div>
+                                    <div className={styles.badgeValue}>{Math.floor(currentTime / 60)}:{(currentTime % 60).toString().padStart(2, '0')}</div>
+                                </div>
+                                <div className={`${styles.badge} ${styles.badgeCorrect}`}>
+                                    <div className={styles.badgeLabel}>正确</div>
+                                    <div className={styles.badgeValue}>{stats.correct}</div>
+                                </div>
+                                <div className={`${styles.badge} ${styles.badgeWrong}`}>
+                                    <div className={styles.badgeLabel}>错误</div>
+                                    <div className={styles.badgeValue}>{stats.wrong}</div>
+                                </div>
+                                <div className={`${styles.badge} ${styles.badgeCount}`}>
+                                    <div className={styles.badgeLabel}>进度</div>
+                                    <div className={styles.badgeValue}>{currentIndex + 1}/{words.length}</div>
+                                </div>
+                            </div>
+
+                            {/* 进度条行 */}
+                            <div className={styles.progressBarRow}>
+                                <div className={styles.practiceProgressBarContainer}>
+                                    <div
+                                        className={styles.progressBarFill}
+                                        style={{ width: `${Math.round(((currentIndex + 1) / words.length) * 100)}%` }}
+                                    />
+                                </div>
+                                <div className={styles.progressPercent}>{Math.round(((currentIndex + 1) / words.length) * 100)}%</div>
+                            </div>
+
+                            {/* 分隔线 */}
+                            <div className={styles.statsDivider}></div>
+
+                            <div className={styles.meaning}>{currentWord?.meaning}</div>
+
+                            <button
+                                className={styles.audioBtn}
+                                onClick={() => playAudio(currentWord?.spelling)}
+                            >
+                                <span>🔊</span>
+                                <span>听发音</span>
+                            </button>
+
+                            <form onSubmit={handleSubmit} className={styles.inputSection}>
+                                <div className={styles.letterBoxes}>
+                                    {/* 首字母固定显示 */}
+                                    <div className={`${styles.letterBox} ${styles.firstLetter}`}>
+                                        {currentWord?.spelling[0]}
+                                    </div>
+                                    {/* 剩余字母输入框 */}
+                                    {letterInputs.map((letter, index) => (
+                                        <input
+                                            key={index}
+                                            ref={el => inputRefs.current[index] = el}
+                                            type="text"
+                                            className={`${styles.letterBox} ${styles.letterInput}`}
+                                            value={letter}
+                                            onChange={(e) => handleLetterChange(index, e.target.value)}
+                                            onKeyDown={(e) => handleKeyDown(index, e)}
+                                            maxLength={1}
+                                        />
+                                    ))}
                                 </div>
 
-                                <div className={styles.wordSpelling}>{currentWord?.spelling}</div>
-                                <div className={styles.wordMeaning}>{currentWord?.meaning}</div>
+                                <div className={styles.actionButtons}>
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary"
+                                        onClick={handleHint}
+                                    >
+                                        💡 提示
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="btn btn-primary"
+                                    >
+                                        检查 ✓
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    ) : (
+                        <div className={styles.cardBack}>
+                            <div className={`${styles.resultIcon} ${isCorrect ? 'correct' : 'wrong'}`}>
+                                {isCorrect ? '✓' : '✗'}
+                            </div>
 
-                                {currentWord?.phonics_data && (
-                                    <div className={`${styles.hintInfo} ${styles.phonics}`}>
-                                        <span className={styles.infoIcon}>📖</span>
-                                        <span>自然拼读: {currentWord.phonics_data}</span>
-                                    </div>
-                                )}
+                            <div className={styles.wordSpelling}>{currentWord?.spelling}</div>
+                            <div className={styles.wordMeaning}>{currentWord?.meaning}</div>
 
-                                {currentWord?.sentence && (
-                                    <div className={`${styles.hintInfo} ${styles.sentence}`}>
-                                        <span className={styles.infoIcon}>📝</span>
-                                        <span>{currentWord.sentence}</span>
-                                    </div>
-                                )}
+                            {currentWord?.phonics_data && (
+                                <div className={`${styles.hintInfo} ${styles.phonics}`}>
+                                    <span className={styles.infoIcon}>📖</span>
+                                    <span>自然拼读: {currentWord.phonics_data}</span>
+                                </div>
+                            )}
 
-                                {currentWord?.root_info && (
-                                    <div className={`${styles.hintInfo} ${styles.etymology}`}>
-                                        <span className={styles.infoIcon}>🌱</span>
-                                        <span>词根: {currentWord.root_info}</span>
-                                    </div>
-                                )}
+                            {currentWord?.sentence && (
+                                <div className={`${styles.hintInfo} ${styles.sentence}`}>
+                                    <span className={styles.infoIcon}>📝</span>
+                                    <span>{currentWord.sentence}</span>
+                                </div>
+                            )}
 
-                                {!isCorrect && (
-                                    <div className={styles.userAnswer}>
-                                        你的答案: <span className={styles.wrongText}>{currentWord?.spelling[0]}{letterInputs.join('')}</span>
-                                    </div>
-                                )}
+                            {currentWord?.root_info && (
+                                <div className={`${styles.hintInfo} ${styles.etymology}`}>
+                                    <span className={styles.infoIcon}>🌱</span>
+                                    <span>词根: {currentWord.root_info}</span>
+                                </div>
+                            )}
 
-                                <button
-                                    className="btn btn-success btn-large"
-                                    onClick={handleNext}
-                                >
-                                    {currentIndex + 1 >= words.length ? '完成 🎉' : '下一个 →'}
-                                </button>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </motion.div>
+                            {!isCorrect && (
+                                <div className={styles.userAnswer}>
+                                    你的答案: <span className={styles.wrongText}>{currentWord?.spelling[0]}{letterInputs.join('')}</span>
+                                </div>
+                            )}
+
+                            <button
+                                className="btn btn-success btn-large"
+                                onClick={handleNext}
+                            >
+                                {currentIndex + 1 >= words.length ? '完成 🎉' : '下一个 →'}
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

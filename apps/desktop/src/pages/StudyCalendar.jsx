@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { getCalendarStats } from '../services/api';
 import styles from '../styles/calendar.module.css';
 
@@ -64,17 +64,14 @@ export default function StudyCalendar() {
             const isToday = new Date().toDateString() === new Date(year, month - 1, day).toDateString();
 
             grid.push(
-                <motion.div
+                <div
                     key={day}
                     className={`${styles.dateCell} ${isToday ? styles.today : ''} ${count > 0 ? styles.checked : ''}`}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: day * 0.01 }}
                 >
                     <span className={styles.dateNumber}>{day}</span>
                     {count > 0 && <span className={styles.checkMark}>✓</span>}
                     {count > 0 && <span className={styles.practiceCount}>{count}次</span>}
-                </motion.div>
+                </div>
             );
         }
 

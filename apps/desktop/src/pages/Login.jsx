@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { studentLogin } from '../services/api';
 import styles from '../styles/login.module.css';
 
@@ -39,12 +39,7 @@ export default function Login() {
 
     return (
         <div className={styles.loginPage}>
-            <motion.div
-                className={styles.loginContainer}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-            >
+            <div className={styles.loginContainer}>
                 <div className={styles.loginHeader}>
                     <h1 className={styles.loginTitle}>📚 词途</h1>
                     <p className={styles.loginSubtitle}>每天一点点，英语大进步</p>
@@ -52,13 +47,9 @@ export default function Login() {
 
                 <form onSubmit={handleLogin} className={styles.loginForm}>
                     {error && (
-                        <motion.div
-                            className={styles.errorMessage}
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                        >
+                        <div className={styles.errorMessage}>
                             {error}
-                        </motion.div>
+                        </div>
                     )}
 
                     <div className={styles.formGroup}>
@@ -102,7 +93,7 @@ export default function Login() {
                         {loading ? '登录中...' : '开始学习 🚀'}
                     </button>
                 </form>
-            </motion.div>
+            </div>
         </div>
     );
 }

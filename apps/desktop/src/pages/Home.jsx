@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { getCurrentLearningBook, getUserStats, generateLearningTask } from '../services/api';
 import styles from '../styles/home.module.css';
 
@@ -110,12 +110,7 @@ export default function Home() {
                 <button className="btn btn-secondary" onClick={handleLogout}>退出</button>
             </header>
 
-            <motion.section
-                className={styles.statsSection}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-            >
+            <section className={styles.statsSection}>
                 <div className={styles.statCard}>
                     <span className={styles.statIcon}>📖</span>
                     <span className={styles.statValue}>{stats?.wordsLearned || 0}</span>
@@ -136,14 +131,9 @@ export default function Home() {
                     <span className={styles.statValue}>{stats?.accuracy || 0}%</span>
                     <span className={styles.statLabel}>正确率</span>
                 </div>
-            </motion.section>
+            </section>
 
-            <motion.section
-                className={styles.currentBookSection}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-            >
+            <section className={styles.currentBookSection}>
                 <h3 className={styles.sectionTitle}>📚 当前学习</h3>
 
                 {currentBook ? (
@@ -226,14 +216,9 @@ export default function Home() {
                         </div>
                     )
                 }
-            </motion.section >
+            </section>
 
-            <motion.section
-                className={styles.actionsSection}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-            >
+            <section className={styles.actionsSection}>
                 <button className={styles.actionBtn} onClick={() => navigate('/books')}>
                     <span className={styles.actionIcon}>📚</span>
                     <span>单词本</span>
@@ -246,7 +231,7 @@ export default function Home() {
                     <span className={styles.actionIcon}>📝</span>
                     <span>错词本</span>
                 </button>
-            </motion.section>
+            </section>
         </div >
     );
 }

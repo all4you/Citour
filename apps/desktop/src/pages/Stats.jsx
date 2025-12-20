@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
 import { getUserStats } from '../services/api';
 import styles from '../styles/stats.module.css';
 
@@ -53,11 +53,7 @@ export default function Stats() {
                 <h1>📊 学习统计</h1>
             </header>
 
-            <motion.div
-                className={styles.statsGrid}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-            >
+            <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
                     <span className={styles.statIcon}>📝</span>
                     <div className={styles.statContent}>
@@ -106,15 +102,10 @@ export default function Stats() {
                     </div>
                 </div>
 
-            </motion.div>
+            </div>
 
             {/* 进度环 */}
-            <motion.div
-                className={styles.progressSection}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-            >
+            <div className={styles.progressSection}>
                 <div className={styles.progressRingContainer}>
                     <svg className={styles.progressRing} viewBox="0 0 120 120">
                         <circle className={styles.progressRingBg} cx="60" cy="60" r="52" />
@@ -131,7 +122,7 @@ export default function Stats() {
                         <span className={styles.progressLabel}>掌握率</span>
                     </div>
                 </div>
-            </motion.div>
+            </div>
 
             <div className={styles.encouragementCard}>
                 <h3>💪 继续加油！</h3>
