@@ -147,6 +147,14 @@ Cloudflare Workers 也支持自定义域名。
    - 添加 `VITE_API_URL`，值为你的 API Worker 地址 (例如 `https://your-api.workers.dev`).
 6. 点击 **Save and Deploy**。
 
+**避免不必要的自动构建:**
+如果你只修改了文档或桌面端代码，不希望触发 Admin 页面的重新构建，可以在 Cloudflare Pages 的 **Settings** -> **Builds & deployments** -> **Build configurations** -> **Build watch paths** 中进行配置。
+
+- 启用 **Build watch paths**
+- 添加包含路径：`apps/admin`
+
+这样，只有当 `apps/admin` 目录下的文件发生变化时，才会触发自动部署。或者在 Commit 信息中包含 `[skip ci]` 也可以跳过当次构建。
+
 **方式 B: 本地构建后上传**
 
 如果不使用 Git 集成，也可以手动构建上传：
@@ -393,3 +401,19 @@ git push origin v0.0.1
 **命令原理解析:**
 - `git push origin :v0.0.1`: 这里的冒号 `:` 语法表示推送一个“空”值到远程的 `v0.0.1`，即删除该引用。
 - `git push origin v0.0.1`: 只有当新的标签被推送到 GitHub 时，`release.yml` 中的 `on: push: tags` 触发器才会被激活，从而开始新一轮的构建。
+
+### 4.7 Release 产物说明
+
+构建成功后，你会在 Release 页面看到以下 6 个文件，它们的含义如下：
+
+| 文件名示例 | 类型 | 说明 | 适用场景 |
+|-----------|------|------|----------|
+| `Citour_0.0.1_universal.dmg` | **macOS 安装包** | 通用版本，同时支持 Intel 和 Apple Silicon (M1/M2/M3) 芯片的 Mac。 | **Mac 用户首选** |
+| `Citour_universal.app.tar.gz` | macOS 程序压缩包 | 直接压缩的 `.app` 文件，解压即可运行，无需安装过程。 | 高级用户或非安装测试 |
+| `Citour_0.0.1_x64-setup.exe` | **Windows 安装包** | 标准的 Windows 安装程序 (NSIS)，安装体验最好。 | **Win 用户首选** |
+| `Citour_0.0.1_x64_en-US.msi` | Windows MSI 包 | 微软安装程序包，常用于企业批量部署。 | 企业环境 / 域控部署 |
+| `Source code (zip)` | 源代码 | GitHub 自动生成的源代码快照 (Zip 格式)。 | 归档 / 离线查看代码 |
+| `Source code (tar.gz)` | 源代码 | GitHub 自动生成的源代码快照 (Tarball 格式)。 | Linux/Mac 命令行使用 |
+
+> **为什么是 Draft (草稿) 状态?**
+> 在 `.github/workflows/release.yml` 中配置了 `draft: true`。这是为了安全起见，让你在正式发布前有机会检查安装包是否正常，或者编辑 Release Notes (发布说明)。确认无误后，点击 "Edit" -> "Publish release" 即可对公众可见。
