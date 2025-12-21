@@ -41,8 +41,8 @@ export default function Login() {
         <div className={styles.loginPage}>
             <div className={styles.loginContainer}>
                 <div className={styles.loginHeader}>
-                    <h1 className={styles.loginTitle}>📚 词途</h1>
-                    <p className={styles.loginSubtitle}>每天一点点，英语大进步</p>
+                    <h1 className={styles.loginTitle}>词途</h1>
+                    <p className={styles.loginSubtitle}>见证每一词的成长</p>
                 </div>
 
                 <form onSubmit={handleLogin} className={styles.loginForm}>
@@ -64,22 +64,22 @@ export default function Login() {
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label>账号</label>
+                        <label>学生账号</label>
                         <input
                             type="text"
                             className="input"
-                            placeholder="请输入账号"
+                            placeholder="请输入学生账号"
                             value={account}
                             onChange={(e) => setAccount(e.target.value)}
                         />
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label>密码</label>
+                        <label>学生密码</label>
                         <input
                             type="password"
                             className="input"
-                            placeholder="请输入密码"
+                            placeholder="请输入学生密码"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
