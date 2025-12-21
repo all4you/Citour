@@ -111,6 +111,13 @@ export default function Practice() {
     const currentWord = words[currentIndex];
     const wordLength = currentWord?.spelling?.length || 0;
 
+    // 判断字符是否需要用户输入
+    const isInputtable = (char) => {
+        if (!char) return false;
+        // 字母、撇号 (') 和 连字符 (-) 需要输入
+        return /[a-zA-Z1-9'-]/.test(char);
+    };
+
     // 实时更新计时器
     useEffect(() => {
         if (!startTime || completed) return;
@@ -126,10 +133,28 @@ export default function Practice() {
     // 初始化字母输入数组（当单词变化时）
     useEffect(() => {
         if (currentWord?.spelling) {
-            // 创建空字母数组（首字母不需要输入）
-            setLetterInputs(Array(currentWord.spelling.length - 1).fill(''));
-            // 聚焦第一个输入框
-            setTimeout(() => inputRefs.current[0]?.focus(), 100);
+            // 创建字母输入数组（首字母不需要输入，从索引1开始）
+            const spelling = currentWord.spelling;
+            const initialInputs = [];
+
+            for (let i = 1; i < spelling.length; i++) {
+                const char = spelling[i];
+                if (isInputtable(char)) {
+                    initialInputs.push(''); // 需要输入的部分初始化为空串
+                } else {
+                    initialInputs.push(char); // 标点符号/空格自动填充
+                }
+            }
+
+            setLetterInputs(initialInputs);
+
+            // 聚焦第一个可输入的框
+            setTimeout(() => {
+                const firstInputtableIndex = initialInputs.findIndex((char, idx) => isInputtable(spelling[idx + 1]));
+                if (firstInputtableIndex !== -1) {
+                    inputRefs.current[firstInputtableIndex]?.focus();
+                }
+            }, 100);
         }
     }, [currentWord?.spelling, currentIndex]);
 
@@ -137,7 +162,7 @@ export default function Practice() {
         e?.preventDefault();
         if (showResult) return;
 
-        // 拼接用户输入：首字母 + 输入的字母
+        // 拼接用户输入：首字母 + 已经包含自动填充字符的 letterInputs
         const userAnswer = currentWord.spelling[0] + letterInputs.join('');
         const correct = userAnswer.toLowerCase() === currentWord.spelling.toLowerCase();
 
@@ -219,22 +244,49 @@ export default function Practice() {
 
     // 处理单个字母输入
     const handleLetterChange = (index, value) => {
-        // 只允许字母
-        const letter = value.replace(/[^a-zA-Z]/g, '').slice(-1);
+        // 获取实际的拼写字符，决定允许输入的范围
+        const targetChar = currentWord.spelling[index + 1];
+
+        let letter = '';
+        if (targetChar === "'" || targetChar === "-") {
+            // 如果目标是撇号或连字符，允许输入这些符号
+            letter = value.slice(-1);
+            if (!["'", "-", ...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')].includes(letter)) {
+                letter = '';
+            }
+        } else {
+            // 默认只允许字母
+            letter = value.replace(/[^a-zA-Z]/g, '').slice(-1);
+        }
+
         const newInputs = [...letterInputs];
         newInputs[index] = letter;
         setLetterInputs(newInputs);
 
-        // 如果输入了字母，自动跳到下一个输入框
-        if (letter && index < letterInputs.length - 1) {
-            inputRefs.current[index + 1]?.focus();
+        // 如果输入了字母，自动跳到下一个可输入框
+        if (letter) {
+            let nextIndex = index + 1;
+            // 跳过所有非输入框（自动填充的标点/空格）
+            while (nextIndex < letterInputs.length && !isInputtable(currentWord.spelling[nextIndex + 1])) {
+                nextIndex++;
+            }
+            if (nextIndex < letterInputs.length) {
+                inputRefs.current[nextIndex]?.focus();
+            }
         }
     };
 
     // 处理键盘事件（支持退格跳转和回车下一个）
     const handleKeyDown = (index, e) => {
         if (e.key === 'Backspace' && !letterInputs[index] && index > 0) {
-            inputRefs.current[index - 1]?.focus();
+            let prevIndex = index - 1;
+            // 跳过所有非输入框
+            while (prevIndex >= 0 && !isInputtable(currentWord.spelling[prevIndex + 1])) {
+                prevIndex--;
+            }
+            if (prevIndex >= 0) {
+                inputRefs.current[prevIndex]?.focus();
+            }
         }
     };
 
@@ -269,7 +321,13 @@ export default function Practice() {
         setShowHint(false);
         // 增加延迟确保卡片翻转动画完成后再聚焦
         setTimeout(() => {
-            inputRefs.current[0]?.focus();
+            // 寻找第一个可输入框重新聚焦
+            const firstInputtableIndex = letterInputs.findIndex((char, idx) => isInputtable(currentWord.spelling[idx + 1]));
+            if (firstInputtableIndex !== -1) {
+                inputRefs.current[firstInputtableIndex]?.focus();
+            } else {
+                inputRefs.current[0]?.focus();
+            }
         }, 350);
     };
 
@@ -470,18 +528,34 @@ export default function Practice() {
                                         {currentWord?.spelling[0]}
                                     </div>
                                     {/* 剩余字母输入框 */}
-                                    {letterInputs.map((letter, index) => (
-                                        <input
-                                            key={index}
-                                            ref={el => inputRefs.current[index] = el}
-                                            type="text"
-                                            className={`${styles.letterBox} ${styles.letterInput}`}
-                                            value={letter}
-                                            onChange={(e) => handleLetterChange(index, e.target.value)}
-                                            onKeyDown={(e) => handleKeyDown(index, e)}
-                                            maxLength={1}
-                                        />
-                                    ))}
+                                    {letterInputs.map((letter, index) => {
+                                        const charInWord = currentWord.spelling[index + 1];
+                                        const inputtable = isInputtable(charInWord);
+
+                                        if (inputtable) {
+                                            return (
+                                                <input
+                                                    key={index}
+                                                    ref={el => inputRefs.current[index] = el}
+                                                    type="text"
+                                                    className={`${styles.letterBox} ${styles.letterInput}`}
+                                                    value={letter}
+                                                    onChange={(e) => handleLetterChange(index, e.target.value)}
+                                                    onKeyDown={(e) => handleKeyDown(index, e)}
+                                                    maxLength={1}
+                                                />
+                                            );
+                                        } else {
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className={`${styles.letterBox} ${styles.nonInputBox} ${charInWord === ' ' ? styles.spaceBox : styles.punctuationBox}`}
+                                                >
+                                                    {charInWord}
+                                                </div>
+                                            );
+                                        }
+                                    })}
                                 </div>
 
                                 <div className={styles.actionButtons}>
@@ -503,7 +577,7 @@ export default function Practice() {
                         </div>
                     ) : (
                         <div className={styles.cardBack}>
-                            <div className={`${styles.resultIcon} ${isCorrect ? 'correct' : 'wrong'}`}>
+                            <div className={`${styles.resultIcon} ${isCorrect ? styles.correct : styles.wrong}`}>
                                 {isCorrect ? '✓' : '✗'}
                             </div>
 

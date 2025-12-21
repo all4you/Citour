@@ -54,7 +54,11 @@ app.get('/', async (c) => {
     LEFT JOIN study_plans sp ON wb.id = sp.book_id AND sp.user_id = ? AND sp.tenant_id = ?
     WHERE wb.tenant_id = ? AND wb.status = 'online'
     ORDER BY 
-      wb.id ASC
+      CASE COALESCE(sp.status, 'not_started')
+       WHEN 'learning' THEN 1
+       WHEN 'not_started' THEN 2
+       WHEN 'completed' THEN 3
+      END ASC
   `).bind(userId, userId, userId, tenantId, tenantId).all();
 
   return c.json({

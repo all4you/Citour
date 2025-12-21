@@ -384,6 +384,27 @@
     border-color: rgba(99, 102, 241, 0.4);
 }
 
+/* 非输入框（自动填充的标点/空格） */
+.non-input-box {
+    background: transparent;
+    border: none;
+    cursor: default;
+    user-select: none;
+}
+
+.space-box {
+    width: 20px;
+    /* 空格间距 */
+}
+
+.punctuation-box {
+    width: auto;
+    padding: 0 4px;
+    color: var(--text-muted);
+    font-size: 26px;
+    /* 标点稍微大一点更清晰 */
+}
+
 .spelling-input {
     width: 100%;
     padding: 18px 20px;
@@ -408,7 +429,7 @@
     margin-top: 40px;
 }
 
-.action-buttons .btn {
+.action-buttons :global(.btn) {
     flex: 1;
     padding: 14px 24px;
     min-width: 140px;
@@ -527,6 +548,10 @@
 
 .result-stat.wrong .value {
     color: var(--error);
+}
+
+.result-stat.time {
+    grid-column: span 2;
 }
 
 /* 提示卡片样式 */
