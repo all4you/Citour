@@ -117,11 +117,38 @@ wrangler d1 execute citour-db --remote --command="SELECT * FROM users"
 
 3. 部署成功后，控制台会输出 API 的访问地址，例如 `https://your-api.workers.dev`。
 
-**关于自定义域名:**
-Cloudflare Workers 也支持自定义域名。
-1. 在 Cloudflare Dashboard 中进入该 Worker 的 **Triggers** 选项卡。
-2. 点击 **Add Custom Domain**，输入你的子域名 (如 `api.citour.com`)。
-3. 绑定后，你的 API 地址即变为 `https://api.citour.com`。
+### 3.1.1 配置自定义域名 (解决 API 国内访问受限问题)
+
+默认分配的 `*.workers.dev` 域名在某些网络环境 (如中国大陆) 可能无法访问或极其缓慢。如果您遇到类似问题（例如开发者能访问但其他同事无法访问），**必须配置自定义域名**。
+
+**前提条件:**
+1. 您拥有一个独立的域名 (例如 `citour.com`)。
+2. **关键步骤**: 该域名的 DNS 必须托管在 Cloudflare 上。
+
+> **[?] 如何将域名接入 Cloudflare?**
+>
+> 1. 登录 Cloudflare Dashboard，点击右上角的 **Add a site**。
+> 2. 输入您的域名 (如 `citour.com`)，点击 **Continue**。
+> 3. 选择 **Free** (免费) 计划，点击 **Continue**。
+> 4. Cloudflare 会扫描您现有的 DNS 记录。**如果是新域名，扫描结果为空是正常的，无需添加任何记录**，直接滚动到底部点击 **Continue** (继续) 即可。
+> 5. 系统会分配给您两个 Nameservers (名称服务器)，例如 `bob.ns.cloudflare.com` 和 `lola.ns.cloudflare.com`。
+> 6. **前往您的域名注册商** (如阿里云、GoDaddy、腾讯云等) 的管理后台：
+>    - 找到“DNS 修改”或“修改 DNS 服务器”选项。
+>    - 将原有的 DNS 服务器删除，填写 Cloudflare 提供的这两个新地址。
+> 7. 保存更改。DNS 变更通常需要 10分钟~24小时 生效 (全球传播)。
+> 8. 回到 Cloudflare 页面点击 **Done, check nameservers**。
+
+**配置步骤:**
+1. 登录 Cloudflare Dashboard，进入 **Workers & Pages**。
+2. 点击您的 API Worker (例如 `citour-api`) 进入详情页。
+3. 点击顶部的 **Settings** (设置) 标签页，然后选择侧边栏的 **Domains & Routes** (或在 **Triggers** 标签页中查找 Custom Domains)。
+4. 点击 **Add Custom Domain** (添加自定义域名)。
+5. 输入您想要使用的完整子域名，例如 `api.citour.com`。
+6. 点击 **Add Custom Domain** 确认。Cloudflare 会自动为您创建 DNS 记录并申请 SSL 证书。
+7. 等待几分钟，当状态变为 `Active` 后，您就可以通过 `https://api.citour.com` 访问您的 API 了。
+
+**重要后续操作:**
+绑定成功后，请务必更新 **GitHub Secrets** 中的 `VITE_API_URL` 为新的自定义域名 (例如 `https://api.citour.com`)，并**重新触发 Release 构建流程** (参考 4.6 节)，以便新生成的安装包能够连接到可访问的 API 地址。
 
 **更新客户端配置:**
 
