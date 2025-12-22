@@ -293,7 +293,8 @@ export default function Practice() {
     // 全局回车键处理（用于结果页面）
     useEffect(() => {
         const handleGlobalKeyDown = (e) => {
-            if (e.key === 'Enter' && showResult) {
+            // 完成后不再响应回车键
+            if (e.key === 'Enter' && showResult && !completed) {
                 e.preventDefault();
                 handleNext();
             }
@@ -301,7 +302,7 @@ export default function Practice() {
 
         window.addEventListener('keydown', handleGlobalKeyDown);
         return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-    }, [showResult, handleNext]);
+    }, [showResult, handleNext, completed]);
 
     // 显示提示（翻转卡片）
     const handleHint = () => {
