@@ -25,14 +25,27 @@ function App() {
           right: '8px',
           background: 'linear-gradient(135deg, #f59e0b, #d97706)',
           color: 'white',
-          fontSize: '11px',
-          fontWeight: '600',
-          padding: '4px 10px',
-          borderRadius: '12px',
+          fontSize: '10px',
+          fontWeight: '500',
+          padding: '6px 10px',
+          borderRadius: '8px',
           zIndex: 9999,
-          boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+          boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          gap: '2px',
+          maxWidth: '200px'
         }}>
-          🔧 测试包
+          <span style={{ fontWeight: '600' }}>🔧 测试包</span>
+          <span style={{
+            fontSize: '9px',
+            opacity: 0.9,
+            wordBreak: 'break-all',
+            textAlign: 'right'
+          }}>
+            {import.meta.env.VITE_API_URL || '本地代理'}
+          </span>
         </div>
       )}
 
