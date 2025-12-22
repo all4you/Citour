@@ -134,9 +134,35 @@
 
 .date-cell.other-month {
     opacity: 0.3;
-    background: transparent;
-    border: none;
+    background: transparent !important;
+    border: none !important;
     pointer-events: none;
+}
+
+/* other-month + weekend 也要是透明的 */
+.date-cell.other-month.weekend {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* 周末样式 - 使用灰蓝色与今天的紫色区分 */
+.date-cell.weekend {
+    background: rgba(148, 163, 184, 0.08);
+    border-color: rgba(148, 163, 184, 0.15);
+}
+
+.date-cell.weekend:hover {
+    background: rgba(148, 163, 184, 0.12);
+}
+
+.date-cell.weekend .date-number {
+    color: #94a3b8;
+}
+
+/* 周末表头样式 */
+.week-day:nth-child(6),
+.week-day:nth-child(7) {
+    color: #94a3b8;
 }
 
 .date-cell.today {

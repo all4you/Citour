@@ -46,14 +46,19 @@ export default function StudyCalendar() {
 
     const generateCalendarGrid = () => {
         const daysInMonth = new Date(year, month, 0).getDate();
-        const firstDayOfWeek = new Date(year, month - 1, 1).getDay(); // 0 (Sun) - 6 (Sat)
+        // getDay() 返回 0 (周日) - 6 (周六)
+        // 转换为周一开始：周一=0, 周二=1, ..., 周日=6
+        const firstDayOfWeekSunday = new Date(year, month - 1, 1).getDay(); // 0-6
+        const firstDayOfWeek = firstDayOfWeekSunday === 0 ? 6 : firstDayOfWeekSunday - 1; // 周一=0
 
         const grid = [];
         const dailyStats = stats?.daily || {};
 
         // Empty cells for days before start of month
         for (let i = 0; i < firstDayOfWeek; i++) {
-            grid.push(<div key={`empty-start-${i}`} className={`${styles.dateCell} ${styles.otherMonth}`} />);
+            // 判断这些空格子是否为周末（位置 5=周六, 6=周日）
+            const isWeekend = i >= 5;
+            grid.push(<div key={`empty-start-${i}`} className={`${styles.dateCell} ${styles.otherMonth} ${isWeekend ? styles.weekend : ''}`} />);
         }
 
         // Days of month
@@ -63,10 +68,14 @@ export default function StudyCalendar() {
             const count = dailyStats[dateStr] || 0;
             const isToday = new Date().toDateString() === new Date(year, month - 1, day).toDateString();
 
+            // 计算这一天在网格中的位置，判断是否为周末
+            const gridPosition = (firstDayOfWeek + day - 1) % 7;
+            const isWeekend = gridPosition >= 5; // 位置 5=周六, 6=周日
+
             grid.push(
                 <div
                     key={day}
-                    className={`${styles.dateCell} ${isToday ? styles.today : ''} ${count > 0 ? styles.checked : ''}`}
+                    className={`${styles.dateCell} ${isToday ? styles.today : ''} ${count > 0 ? styles.checked : ''} ${isWeekend ? styles.weekend : ''}`}
                 >
                     <span className={styles.dateNumber}>{day}</span>
                     {count > 0 && <span className={styles.checkMark}>✓</span>}
@@ -79,7 +88,8 @@ export default function StudyCalendar() {
         return grid;
     };
 
-    const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    // 周一开始
+    const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
     return (
         <div className={styles.calendarPage}>
