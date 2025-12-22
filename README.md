@@ -2,6 +2,21 @@
 
 一个多租户英语单词学习系统，支持系统管理、租户管理和学生练习三个层级。
 
+## 学生端截图
+
+| 模块 | 截图 |
+| --- | --- |
+| 登录 | ![login](images/login.png) |
+| 首页 | ![login](images/home.png) |
+| 单词本 | ![login](images/word_books.png) |
+| 学习日历 | ![login](images/study_calendar.png) |
+| 错词本 | ![login](images/wrong_words.png) |
+| 打卡练习1 | ![login](images/practice1.png) |
+| 打卡练习2 | ![login](images/practice2.png) |
+| 打卡练习3 | ![login](images/practice3.png) |
+| 打卡练习4 | ![login](images/practice4.png) |
+
+
 ## 系统架构
 
 ```
