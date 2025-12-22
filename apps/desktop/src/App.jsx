@@ -17,6 +17,25 @@ function PrivateRoute({ children }) {
 function App() {
   return (
     <HashRouter>
+      {/* 本地测试包全局标识 */}
+      {import.meta.env.VITE_BUILD_TYPE === 'local' && (
+        <div style={{
+          position: 'fixed',
+          top: '8px',
+          right: '8px',
+          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+          color: 'white',
+          fontSize: '11px',
+          fontWeight: '600',
+          padding: '4px 10px',
+          borderRadius: '12px',
+          zIndex: 9999,
+          boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+        }}>
+          🔧 测试包
+        </div>
+      )}
+
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={
