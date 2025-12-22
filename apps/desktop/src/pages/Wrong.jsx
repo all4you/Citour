@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { getWrongWords } from '../services/api';
+import { playAudio, unlockAudio } from '../services/audio';
 import styles from '../styles/wrong.module.css';
 
 export default function Wrong() {
@@ -11,7 +12,17 @@ export default function Wrong() {
     const [stats, setStats] = useState({ total: 0, thisWeek: 0, reviewed: 0, unreviewed: 0 });
     const [loading, setLoading] = useState(true);
     const [timeFilter, setTimeFilter] = useState('all'); // all, week, today
+    const [playingWordId, setPlayingWordId] = useState(null); // 正在播放的单词 ID
     const hasFetched = useRef(false);
+
+    useEffect(() => {
+        const handleInteraction = () => {
+            unlockAudio();
+            document.removeEventListener('click', handleInteraction);
+        };
+        document.addEventListener('click', handleInteraction);
+        return () => document.removeEventListener('click', handleInteraction);
+    }, []);
 
     useEffect(() => {
         if (!user.id) {
@@ -45,30 +56,7 @@ export default function Wrong() {
         }
     };
 
-    // 播放发音 (使用有道词典 API)
-    const playAudio = (word) => {
-        if (!word) return;
-        console.log('Playing audio for:', word);
-
-        // 使用有道词典音频 API
-        const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`;
-        const audio = new Audio(audioUrl);
-        audio.volume = 1;
-
-        audio.play().catch((err) => {
-            console.warn('有道词典播放失败，尝试 Web Speech API:', err);
-            // 备用方案：使用 Web Speech API
-            try {
-                speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(word);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9;
-                speechSynthesis.speak(utterance);
-            } catch (e) {
-                console.error('播放失败:', e);
-            }
-        });
-    };
+    // 移除本地播放逻辑，改用统一的 audio service
 
     // 格式化日期
     const formatDate = (dateStr) => {
@@ -152,11 +140,20 @@ export default function Wrong() {
                             <div className={styles.wordHeader}>
                                 <div className={styles.wordSpelling}>{item.spelling}</div>
                                 <button
-                                    className={styles.audioBtn}
-                                    onClick={() => playAudio(item.spelling)}
+                                    className={`${styles.audioBtn} ${playingWordId === item.word_id ? styles.audioBtnLoading : ''}`}
+                                    onClick={() => {
+                                        if (playingWordId === item.word_id) return;
+                                        setPlayingWordId(item.word_id);
+                                        playAudio(item.spelling, 2, {
+                                            onPlaying: () => { },
+                                            onEnded: () => setPlayingWordId(null),
+                                            onError: () => setPlayingWordId(null)
+                                        });
+                                    }}
                                     title="播放发音"
+                                    disabled={playingWordId === item.word_id}
                                 >
-                                    🔊
+                                    {playingWordId === item.word_id ? '⏳' : '🔊'}
                                 </button>
                                 <div className={styles.wrongCountBadge}>
                                     错 {item.wrong_count} 次

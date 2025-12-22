@@ -268,3 +268,26 @@
     background: rgba(99, 102, 241, 0.3);
     transform: scale(1.1);
 }
+
+/* 音频按钮加载状态 */
+.audio-btn-loading {
+    background: rgba(99, 102, 241, 0.3) !important;
+    cursor: wait !important;
+    animation: audioPulse 1s ease-in-out infinite;
+}
+
+.audio-btn-loading:hover {
+    transform: none !important;
+}
+
+@keyframes audioPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}

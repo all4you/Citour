@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import { getTaskDetails, submitPracticeResult, updateTaskProgress } from '../services/api';
+import { playAudio, stopAudio, unlockAudio, isAudioUnlocked } from '../services/audio';
 import styles from '../styles/practice.module.css';
 
 export default function Practice() {
@@ -29,30 +30,10 @@ export default function Practice() {
     const inputRefs = useRef([]); // 多个输入框的引用
     const hasFetched = useRef(false);
     const totalWordsCount = useRef(0); // 原始单词总数（用于统计）
+    const [audioReady, setAudioReady] = useState(false); // 音频是否已授权
+    const [audioLoading, setAudioLoading] = useState(false); // 音频是否正在加载
 
-    // 播放发音 (使用有道词典 API)
-    const playAudio = useCallback((word) => {
-        if (!word) return;
-
-        // 使用有道词典音频 API
-        const audioUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=2`;
-        const audio = new Audio(audioUrl);
-        audio.volume = 1;
-
-        audio.play().catch((err) => {
-            console.warn('有道词典播放失败，尝试 Web Speech API:', err);
-            // 备用方案：使用 Web Speech API
-            try {
-                speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(word);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9;
-                speechSynthesis.speak(utterance);
-            } catch (e) {
-                console.error('播放失败:', e);
-            }
-        });
-    }, []);
+    // 移除本地播放逻辑，改用统一的 audio service
 
     // 播放音效
     const playSound = useCallback((type) => {
@@ -77,11 +58,31 @@ export default function Practice() {
         oscillator.stop(audioCtx.currentTime + 0.3);
     }, []);
 
+    // 处理音频授权 - 在用户点击事件中直接播放
+    const handleEnableAudio = async () => {
+        setAudioReady(true);
+
+        // 加载任务
+        if (!hasFetched.current) {
+            hasFetched.current = true;
+            const firstWord = await loadTask();
+            // 在同一个点击事件中播放第一个单词（满足浏览器 autoplay 策略）
+            if (firstWord) {
+                playAudio(firstWord);
+            }
+        }
+    };
+
+    // 如果已经解锁（比如从其他页面解锁过），直接加载
     useEffect(() => {
-        if (hasFetched.current) return;
-        hasFetched.current = true;
-        loadTask();
-    }, [taskId]);
+        if (isAudioUnlocked()) {
+            setAudioReady(true);
+            if (!hasFetched.current) {
+                hasFetched.current = true;
+                loadTask();
+            }
+        }
+    }, []);
 
     const loadTask = async () => {
         try {
@@ -97,12 +98,11 @@ export default function Practice() {
             // 记录开始时间
             setStartTime(Date.now());
 
-            // 播放第一个单词
-            if (allWords.length > 0) {
-                setTimeout(() => playAudio(allWords[0].spelling), 500);
-            }
+            // 返回第一个单词用于播放
+            return allWords.length > 0 ? allWords[0].spelling : null;
         } catch (err) {
             console.error('Failed to load task:', err);
+            return null;
         } finally {
             setLoading(false);
         }
@@ -221,7 +221,7 @@ export default function Practice() {
                 // 播放第一个失败单词
                 setTimeout(() => {
                     playAudio(failedWords[0].spelling);
-                }, 300);
+                }, 100);
             } else {
                 // 所有单词都成功，完成练习
                 finishPractice();
@@ -239,7 +239,7 @@ export default function Practice() {
         // 播放下一个单词
         setTimeout(() => {
             playAudio(words[currentIndex + 1]?.spelling);
-        }, 300);
+        }, 100);
     }, [currentIndex, words, failedWords, playAudio]);
 
     // 处理单个字母输入
@@ -349,6 +349,25 @@ export default function Practice() {
         });
     };
 
+    // 如果音频未授权，显示授权弹窗
+    if (!audioReady) {
+        return (
+            <div className={`${styles.practicePage} ${styles.loading}`}>
+                <div className={styles.audioUnlockCard}>
+                    <div className={styles.audioIcon}>🔊</div>
+                    <h2>开启发音</h2>
+                    <p>为了获得最佳学习体验，请点击下方按钮启用发音功能</p>
+                    <button
+                        className="btn btn-primary btn-large"
+                        onClick={handleEnableAudio}
+                    >
+                        点击启用发音
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     if (loading) {
         return (
             <div className={`${styles.practicePage} ${styles.loading}`}>
@@ -438,10 +457,19 @@ export default function Practice() {
                             <div className={styles.hintSpelling}>
                                 <span className={styles.spellingText}>{currentWord?.spelling}</span>
                                 <button
-                                    className={styles.audioBtnSmall}
-                                    onClick={() => playAudio(currentWord?.spelling)}
+                                    className={`${styles.audioBtnSmall} ${audioLoading ? styles.audioBtnLoading : ''}`}
+                                    onClick={() => {
+                                        if (audioLoading) return;
+                                        setAudioLoading(true);
+                                        playAudio(currentWord?.spelling, 2, {
+                                            onPlaying: () => setAudioLoading(false),
+                                            onEnded: () => setAudioLoading(false),
+                                            onError: () => setAudioLoading(false)
+                                        });
+                                    }}
+                                    disabled={audioLoading}
                                 >
-                                    🔊
+                                    {audioLoading ? '⏳' : '🔊'}
                                 </button>
                             </div>
 
@@ -514,11 +542,22 @@ export default function Practice() {
                             <div className={styles.meaning}>{currentWord?.meaning}</div>
 
                             <button
-                                className={styles.audioBtn}
-                                onClick={() => playAudio(currentWord?.spelling)}
+                                className={`${styles.audioBtn} ${audioLoading ? styles.audioBtnLoading : ''}`}
+                                onClick={() => {
+                                    if (audioLoading) return;
+                                    setAudioLoading(true);
+                                    playAudio(currentWord?.spelling, 2, {
+                                        onPlaying: () => setAudioLoading(false),
+                                        onEnded: () => setAudioLoading(false),
+                                        onError: () => setAudioLoading(false)
+                                    });
+                                }}
+                                disabled={audioLoading}
                             >
-                                <span>🔊</span>
-                                <span>听发音</span>
+                                <span className={audioLoading ? styles.audioIconLoading : ''}>
+                                    {audioLoading ? '⏳' : '🔊'}
+                                </span>
+                                <span>{audioLoading ? '加载中...' : '听发音'}</span>
                             </button>
 
                             <form onSubmit={handleSubmit} className={styles.inputSection}>
