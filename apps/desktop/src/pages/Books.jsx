@@ -15,6 +15,7 @@ export default function Books() {
     const [statsModal, setStatsModal] = useState(null); // 学习情况弹窗
     const [statsLoading, setStatsLoading] = useState(false);
     const [descModal, setDescModal] = useState(null); // 描述弹窗
+    const [statusFilter, setStatusFilter] = useState('all'); // 状态筛选: all, learning, not_started, completed
     const hasFetched = useRef(false);
 
     useEffect(() => {
@@ -308,96 +309,126 @@ export default function Books() {
                 <h1>📚 单词本</h1>
             </header>
 
+            {/* 状态筛选 tabs */}
+            <div className={styles.filterTabs}>
+                <button
+                    className={`${styles.filterTab} ${statusFilter === 'all' ? styles.active : ''}`}
+                    onClick={() => setStatusFilter('all')}
+                >
+                    全部
+                </button>
+                <button
+                    className={`${styles.filterTab} ${statusFilter === 'learning' ? styles.active : ''}`}
+                    onClick={() => setStatusFilter('learning')}
+                >
+                    学习中
+                </button>
+                <button
+                    className={`${styles.filterTab} ${statusFilter === 'not_started' ? styles.active : ''}`}
+                    onClick={() => setStatusFilter('not_started')}
+                >
+                    未开始
+                </button>
+                <button
+                    className={`${styles.filterTab} ${statusFilter === 'completed' ? styles.active : ''}`}
+                    onClick={() => setStatusFilter('completed')}
+                >
+                    已完成
+                </button>
+            </div>
+
             <div className={styles.booksGrid}>
-                {books.map((book, index) => {
-                    const total = book.word_count || 0;
-                    const completed = book.completed_words || 0;
-                    const remaining = total - completed;
-                    const practiceCount = book.practice_count || 0;
-                    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-                    const isAllCompleted = completed >= total && total > 0;
+                {books
+                    .filter(book => statusFilter === 'all' || book.status === statusFilter)
+                    .map((book, index) => {
+                        const total = book.word_count || 0;
+                        const completed = book.completed_words || 0;
+                        const remaining = total - completed;
+                        const practiceCount = book.practice_count || 0;
+                        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+                        const isAllCompleted = completed >= total && total > 0;
 
-                    return (
-                        <div
-                            key={book.id}
-                            className={`${styles.bookCardCompact} ${styles[book.status]}`}
-                        >
-                            <div className={styles.bookHeaderRow}>
-                                <div className={styles.bookIconSmall}>📖</div>
-                                <div className={styles.bookTitleArea}>
-                                    <h3>{book.name}</h3>
-                                    {getStatusBadge(book.status)}
+                        return (
+                            <div
+                                key={book.id}
+                                className={`${styles.bookCardCompact} ${styles[book.status]}`}
+                            >
+                                <div className={styles.bookHeaderRow}>
+                                    <div className={styles.bookIconSmall}>📖</div>
+                                    <div className={styles.bookTitleArea}>
+                                        <h3>{book.name}</h3>
+                                        {getStatusBadge(book.status)}
+                                    </div>
+                                    <button className={styles.infoBtn} onClick={() => setDescModal(book)} title="查看描述">
+                                        ℹ️
+                                    </button>
                                 </div>
-                                <button className={styles.infoBtn} onClick={() => setDescModal(book)} title="查看描述">
-                                    ℹ️
-                                </button>
-                            </div>
 
-                            <div className={styles.bookStatsRow}>
-                                <div className={styles.statPill}>
-                                    <span className={styles.statNum}>{total}</span>
-                                    <span className={styles.statLabel}>总数</span>
+                                <div className={styles.bookStatsRow}>
+                                    <div className={styles.statPill}>
+                                        <span className={styles.statNum}>{total}</span>
+                                        <span className={styles.statLabel}>总数</span>
+                                    </div>
+                                    <div className={`${styles.statPill} ${styles.completed}`}>
+                                        <span className={styles.statNum}>{completed}</span>
+                                        <span className={styles.statLabel}>已完成</span>
+                                    </div>
+                                    <div className={`${styles.statPill} ${styles.remaining}`}>
+                                        <span className={styles.statNum}>{remaining}</span>
+                                        <span className={styles.statLabel}>剩余</span>
+                                    </div>
+                                    <div className={`${styles.statPill} ${styles.practice}`}>
+                                        <span className={styles.statNum}>{practiceCount}</span>
+                                        <span className={styles.statLabel}>已练习</span>
+                                    </div>
+                                    <div className={styles.progressRingMini}>
+                                        <svg viewBox="0 0 36 36">
+                                            <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
+                                            <circle cx="18" cy="18" r="15" fill="none" stroke="url(#gradient)" strokeWidth="3"
+                                                strokeDasharray={`${percent * 0.94} 100`}
+                                                strokeLinecap="round"
+                                                transform="rotate(-90 18 18)" />
+                                            <defs>
+                                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                    <stop offset="0%" stopColor="#6366f1" />
+                                                    <stop offset="100%" stopColor="#10b981" />
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                        <span className={styles.ringText}>{percent}%</span>
+                                    </div>
                                 </div>
-                                <div className={`${styles.statPill} ${styles.completed}`}>
-                                    <span className={styles.statNum}>{completed}</span>
-                                    <span className={styles.statLabel}>已完成</span>
-                                </div>
-                                <div className={`${styles.statPill} ${styles.remaining}`}>
-                                    <span className={styles.statNum}>{remaining}</span>
-                                    <span className={styles.statLabel}>剩余</span>
-                                </div>
-                                <div className={`${styles.statPill} ${styles.practice}`}>
-                                    <span className={styles.statNum}>{practiceCount}</span>
-                                    <span className={styles.statLabel}>已练习</span>
-                                </div>
-                                <div className={styles.progressRingMini}>
-                                    <svg viewBox="0 0 36 36">
-                                        <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
-                                        <circle cx="18" cy="18" r="15" fill="none" stroke="url(#gradient)" strokeWidth="3"
-                                            strokeDasharray={`${percent * 0.94} 100`}
-                                            strokeLinecap="round"
-                                            transform="rotate(-90 18 18)" />
-                                        <defs>
-                                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" stopColor="#6366f1" />
-                                                <stop offset="100%" stopColor="#10b981" />
-                                            </linearGradient>
-                                        </defs>
-                                    </svg>
-                                    <span className={styles.ringText}>{percent}%</span>
-                                </div>
-                            </div>
 
-                            <div className={styles.bookActionsRow}>
-                                {book.status === 'learning' ? (
-                                    <>
+                                <div className={styles.bookActionsRow}>
+                                    {book.status === 'learning' ? (
+                                        <>
+                                            <button className={`btn ${styles.btnSuccess} ${styles.btnSm}`} onClick={() => handleContinueLearning(book)} disabled={actionLoading === book.id}>
+                                                {actionLoading === book.id ? '...' : '继续学习'}
+                                            </button>
+                                            <button
+                                                className={`btn ${styles.btnSm} ${isAllCompleted ? styles.btnPrimaryOutline : styles.btnDisabled}`}
+                                                onClick={() => isAllCompleted && handleCompleteLearning(book)}
+                                                disabled={!isAllCompleted}
+                                            >
+                                                完成学习
+                                            </button>
+                                        </>
+                                    ) : book.status === 'completed' ? (
                                         <button className={`btn ${styles.btnSuccess} ${styles.btnSm}`} onClick={() => handleContinueLearning(book)} disabled={actionLoading === book.id}>
-                                            {actionLoading === book.id ? '...' : '继续学习'}
+                                            {actionLoading === book.id ? '...' : '继续复习'}
                                         </button>
-                                        <button
-                                            className={`btn ${styles.btnSm} ${isAllCompleted ? styles.btnPrimaryOutline : styles.btnDisabled}`}
-                                            onClick={() => isAllCompleted && handleCompleteLearning(book)}
-                                            disabled={!isAllCompleted}
-                                        >
-                                            完成学习
+                                    ) : (
+                                        <button className={`btn btn-primary ${styles.btnSm}`} onClick={() => handleStartLearning(book)} disabled={actionLoading === book.id || (getLearningBook() && getLearningBook().id !== book.id)}>
+                                            {actionLoading === book.id ? '...' : getLearningBook() ? '请先完成学习中的任务' : '开始学习'}
                                         </button>
-                                    </>
-                                ) : book.status === 'completed' ? (
-                                    <button className={`btn ${styles.btnSuccess} ${styles.btnSm}`} onClick={() => handleContinueLearning(book)} disabled={actionLoading === book.id}>
-                                        {actionLoading === book.id ? '...' : '继续复习'}
+                                    )}
+                                    <button className={`btn ${styles.btnLink} ${styles.btnSm}`} onClick={() => handleViewStats(book)}>
+                                        学习详情
                                     </button>
-                                ) : (
-                                    <button className={`btn btn-primary ${styles.btnSm}`} onClick={() => handleStartLearning(book)} disabled={actionLoading === book.id || (getLearningBook() && getLearningBook().id !== book.id)}>
-                                        {actionLoading === book.id ? '...' : getLearningBook() ? '请先完成学习中的任务' : '开始学习'}
-                                    </button>
-                                )}
-                                <button className={`btn ${styles.btnLink} ${styles.btnSm}`} onClick={() => handleViewStats(book)}>
-                                    学习详情
-                                </button>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
             </div>
 
             {books.length === 0 && (
