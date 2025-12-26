@@ -51,13 +51,13 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
   box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
-  transition: all 0.3s ease;
+  transition: box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 .ant-btn-primary:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+  opacity: 0.9;
 }
 
 /* 卡片样式 */
