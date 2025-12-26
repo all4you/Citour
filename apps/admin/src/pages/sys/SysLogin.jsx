@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, message } from 'antd';
+import { Form, Input, Button, Card, Alert } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { sysLogin } from '../../services/api';
 
 export default function SysLogin() {
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleLogin = async (values) => {
         setLoading(true);
+        setError('');
         try {
             const res = await sysLogin(values.account, values.password);
 
@@ -19,10 +21,13 @@ export default function SysLogin() {
                 account: values.account
             }));
 
-            message.success('登录成功');
             navigate('/sys/tenants');
-        } catch (error) {
-            message.error(error.response?.data?.error || '登录失败');
+        } catch (err) {
+            const errorMessage = err.response?.data?.error
+                || err.response?.data?.message
+                || err.message
+                || '登录失败，请检查账号密码';
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -37,10 +42,23 @@ export default function SysLogin() {
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
         }}>
             <Card
-                title="系统管理员登录"
+                title="Citour 系统管理后台"
                 style={{ width: 400 }}
                 headStyle={{ textAlign: 'center', fontSize: '20px', fontWeight: 'bold' }}
             >
+                <div style={{ textAlign: 'center', marginBottom: 24, color: '#666' }}>
+                    登录系统管理后台
+                </div>
+
+                {error && (
+                    <Alert
+                        message={error}
+                        type="error"
+                        showIcon
+                        style={{ marginBottom: 24 }}
+                    />
+                )}
+
                 <Form
                     name="sys_login"
                     onFinish={handleLogin}

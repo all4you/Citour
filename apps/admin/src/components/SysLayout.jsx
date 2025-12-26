@@ -21,7 +21,7 @@ export default function SysLayout() {
 
     return (
         <ProLayout
-            title="Citour 系统控制台"
+            title="Citour 系统管理后台"
             logo={null}
             layout="mix"
             navTheme="light"

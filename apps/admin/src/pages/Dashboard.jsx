@@ -35,8 +35,7 @@ export default function Dashboard() {
 
     return (
         <PageContainer
-            title={`欢迎, ${user.name || '管理员'}`}
-            subTitle="租户管理后台"
+            title={`仪表盘`}
         >
             <Spin spinning={loading}>
                 <Row gutter={[16, 16]}>
